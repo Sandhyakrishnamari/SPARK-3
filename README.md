@@ -48,3 +48,69 @@ SPARK aims to simplify the complex university application process by providing s
 - Multilingual student assistance
 - Predictive admission analytics
 - AI-powered counselor assistance
+
+## 🚀 Deployment Guide
+
+### Local Development
+
+1. Clone the repository:
+```bash
+git clone https://github.com/Sandhyakrishnamari/SPARK-3.git
+cd SPARK-3
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Create environment file:
+```bash
+cp .env.example .env
+```
+
+4. Run the application:
+```bash
+python app.py
+```
+
+### Vercel Deployment
+
+#### Database Setup (Required for Production)
+
+Since Vercel's serverless environment doesn't support persistent SQLite, you need to set up a PostgreSQL database:
+
+**Option 1: Free PostgreSQL Services**
+
+1. **ElephantSQL** (Free tier available)
+   - Sign up at [elephantsql.com](https://www.elephantsql.com)
+   - Create a new database
+   - Copy the connection URL
+
+2. **Supabase** (Free tier available)
+   - Sign up at [supabase.com](https://supabase.com)
+   - Create a new project
+   - Go to Settings > Database
+   - Copy the connection string
+
+3. **Neon** (Free tier available)
+   - Sign up at [neon.tech](https://neon.tech)
+   - Create a new project
+   - Copy the connection string
+
+#### Deploy to Vercel
+
+1. Push your code to GitHub
+
+2. Go to [vercel.com](https://vercel.com) and import your repository
+
+3. Add the following environment variables in Vercel project settings:
+   - `DATABASE_URL`: Your PostgreSQL connection string
+   - `SECRET_KEY`: A random secret key (generate one with: `python -c "import secrets; print(secrets.token_hex(32))"`)
+
+4. Deploy!
+
+The application will automatically:
+- Detect PostgreSQL via `DATABASE_URL` environment variable
+- Create all necessary tables on first run
+- Handle both local SQLite and production PostgreSQL

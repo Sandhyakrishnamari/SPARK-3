@@ -26,7 +26,7 @@ class Config:
     # =========================================================
     # DATABASE
     # =========================================================
-    # Using SQLite for easier local development
+    # Using SQLite for easier local development, PostgreSQL for production
     DB_HOST = os.environ.get("DB_HOST", "localhost")
     DB_PORT = os.environ.get("DB_PORT", "5432")
     DB_NAME = os.environ.get("DB_NAME", "mywebsite")
@@ -39,11 +39,18 @@ class Config:
     else:
         DB_PATH = os.path.join(BASE_DIR, "spark.db")
     
-    DATABASE_URL = os.environ.get(
-        "DATABASE_URL",
-        f"sqlite:///{DB_PATH}"
-    )
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    # Check if DATABASE_URL is provided (for PostgreSQL)
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+    
+    if DATABASE_URL:
+        # Use PostgreSQL
+        SQLALCHEMY_DATABASE_URI = DATABASE_URL
+        DB_TYPE = "postgresql"
+    else:
+        # Use SQLite
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{DB_PATH}"
+        DB_TYPE = "sqlite"
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # =========================================================

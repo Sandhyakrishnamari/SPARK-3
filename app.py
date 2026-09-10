@@ -27,6 +27,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from jinja2 import ChoiceLoader, FileSystemLoader, PrefixLoader
 
+# PostgreSQL support
+try:
+    import psycopg2
+    from psycopg2 import sql
+    POSTGRESQL_AVAILABLE = True
+except ImportError:
+    POSTGRESQL_AVAILABLE = False
+
 from config import Config
 from university_data import (
     MASTER_UNIVERSITIES_DATA,
@@ -79,16 +87,23 @@ def allowed_file(filename, custom_allowed=None):
 # ============================================================
 
 class SparkConnection:
-    def __init__(self, connection):
+    def __init__(self, connection, db_type="sqlite"):
         self._connection = connection
         self._closed = False
+        self._db_type = db_type
 
     def cursor(self):
         return self._connection.cursor()
 
     def execute(self, query, params=None):
         cursor = self.cursor()
-        cursor.execute(query, params or ())
+        # Handle parameter differences between SQLite and PostgreSQL
+        if self._db_type == "postgresql" and params:
+            # PostgreSQL uses %s placeholders
+            cursor.execute(query, params)
+        else:
+            # SQLite uses ? placeholders
+            cursor.execute(query, params or ())
         return cursor
 
     def commit(self):
@@ -108,19 +123,32 @@ class SparkConnection:
 def get_db():
     if "db" not in g:
         try:
-            db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
-            raw_conn = sqlite3.connect(db_path)
-            raw_conn.row_factory = sqlite3.Row
-            g.db = SparkConnection(raw_conn)
+            database_url = app.config.get("DATABASE_URL")
+            db_type = getattr(Config, 'DB_TYPE', 'sqlite')
+            
+            if database_url and db_type == "postgresql" and POSTGRESQL_AVAILABLE:
+                # Use PostgreSQL
+                raw_conn = psycopg2.connect(database_url)
+                raw_conn.autocommit = False
+                g.db = SparkConnection(raw_conn, db_type="postgresql")
+            else:
+                # Use SQLite
+                db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
+                raw_conn = sqlite3.connect(db_path)
+                raw_conn.row_factory = sqlite3.Row
+                g.db = SparkConnection(raw_conn, db_type="sqlite")
         except Exception as e:
             print(f"Database connection error: {e}")
-            # Create database if it doesn't exist
-            ensure_db_exists()
-            # Try again
-            db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
-            raw_conn = sqlite3.connect(db_path)
-            raw_conn.row_factory = sqlite3.Row
-            g.db = SparkConnection(raw_conn)
+            # For SQLite, try to create database if it doesn't exist
+            if not database_url or db_type == "sqlite":
+                ensure_db_exists()
+                # Try again
+                db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
+                raw_conn = sqlite3.connect(db_path)
+                raw_conn.row_factory = sqlite3.Row
+                g.db = SparkConnection(raw_conn, db_type="sqlite")
+            else:
+                raise
     return g.db
 
 
@@ -854,38 +882,52 @@ def recalculate_student_metrics(conn, student_id):
 def ensure_db_exists():
     """Check if database exists and initialize if needed."""
     try:
-        db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
+        database_url = app.config.get("DATABASE_URL")
+        db_type = getattr(Config, 'DB_TYPE', 'sqlite')
         
-        # Check if database file exists (for SQLite)
-        if not os.environ.get("DATABASE_URL"):  # Using SQLite
+        if database_url and db_type == "postgresql" and POSTGRESQL_AVAILABLE:
+            # For PostgreSQL, just try to initialize (it will handle existing tables)
+            try:
+                init_db()
+            except Exception as e:
+                print(f"PostgreSQL initialization error: {e}")
+        else:
+            # SQLite handling
+            db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
             if not os.path.exists(db_path):
                 # Create empty database file
                 with open(db_path, 'w') as f:
                     pass  # Create empty file
                 init_db()
-        else:
-            # For PostgreSQL, just try to initialize (it will handle existing tables)
-            try:
-                init_db()
-            except Exception as e:
-                print(f"Database initialization error: {e}")
     except Exception as e:
         print(f"Error in ensure_db_exists: {e}")
         # Don't fail the app if database initialization fails
 
 
+def get_primary_key_sql():
+    """Return appropriate primary key SQL based on database type"""
+    db_type = getattr(Config, 'DB_TYPE', 'sqlite')
+    if db_type == "postgresql":
+        return "SERIAL PRIMARY KEY"
+    else:
+        return "INTEGER PRIMARY KEY AUTOINCREMENT"
+
 def init_db():
     conn = get_db()
     cursor = conn.cursor()
+    
+    # Determine database type
+    db_type = getattr(Config, 'DB_TYPE', 'sqlite')
+    primary_key = get_primary_key_sql()
     
     try:
         # --------------------------------------------------------
         # USERS
         # --------------------------------------------------------
-
-        cursor.execute("""
+        
+        cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id {primary_key},
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 role TEXT NOT NULL,
@@ -896,10 +938,10 @@ def init_db():
         # --------------------------------------------------------
         # STUDENTS
         # --------------------------------------------------------
-
-        cursor.execute("""
+        
+        cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS students (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id {primary_key},
                 user_id INTEGER,
                 student_id TEXT UNIQUE,
                 full_name TEXT,
@@ -925,9 +967,9 @@ def init_db():
         # ACADEMICS
         # --------------------------------------------------------
 
-        cursor.execute("""
+        cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS academics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id {primary_key},
                 student_id INTEGER,
                 subject TEXT,
                 marks REAL,
@@ -949,7 +991,7 @@ def init_db():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS activities (
 
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id {primary_key},
 
                 student_id INTEGER,
 
@@ -976,7 +1018,7 @@ def init_db():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS universities (
 
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id {primary_key},
 
                 student_id INTEGER,
 
@@ -1007,7 +1049,7 @@ def init_db():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS documents (
 
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id {primary_key},
 
                 student_id INTEGER,
 
@@ -1027,17 +1069,17 @@ def init_db():
 
         # Planning records for every page in the student workspace.
         for statement in [
-            """CREATE TABLE IF NOT EXISTS test_scores (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, test_name TEXT NOT NULL, score TEXT, test_date TEXT, status TEXT DEFAULT 'Planned', created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
-            """CREATE TABLE IF NOT EXISTS milestones (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, title TEXT NOT NULL, target_date TEXT, status TEXT DEFAULT 'Not Started', created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
-            """CREATE TABLE IF NOT EXISTS essays (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, essay_prompt TEXT NOT NULL, university TEXT, draft_status TEXT DEFAULT 'Uploaded for Counselor Review', deadline TEXT, file_path TEXT, file_name TEXT, feedback TEXT, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
-            """CREATE TABLE IF NOT EXISTS recommenders (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, teacher_name TEXT NOT NULL, subject TEXT, university TEXT, deadline TEXT, brag_sheet TEXT, status TEXT DEFAULT 'Requested', lor_file_path TEXT, lor_file_name TEXT, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
-            """CREATE TABLE IF NOT EXISTS deadlines (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, action TEXT NOT NULL, due_date TEXT, category TEXT, status TEXT DEFAULT 'Pending', created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
-            """CREATE TABLE IF NOT EXISTS prerequisites (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, requirement TEXT NOT NULL, completed INTEGER NOT NULL DEFAULT 0, notes TEXT, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
+            f"""CREATE TABLE IF NOT EXISTS test_scores (id {primary_key}, student_id INTEGER NOT NULL, test_name TEXT NOT NULL, score TEXT, test_date TEXT, status TEXT DEFAULT 'Planned', created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
+            f"""CREATE TABLE IF NOT EXISTS milestones (id {primary_key}, student_id INTEGER NOT NULL, title TEXT NOT NULL, target_date TEXT, status TEXT DEFAULT 'Not Started', created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
+            f"""CREATE TABLE IF NOT EXISTS essays (id {primary_key}, student_id INTEGER NOT NULL, essay_prompt TEXT NOT NULL, university TEXT, draft_status TEXT DEFAULT 'Uploaded for Counselor Review', deadline TEXT, file_path TEXT, file_name TEXT, feedback TEXT, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
+            f"""CREATE TABLE IF NOT EXISTS recommenders (id {primary_key}, student_id INTEGER NOT NULL, teacher_name TEXT NOT NULL, subject TEXT, university TEXT, deadline TEXT, brag_sheet TEXT, status TEXT DEFAULT 'Requested', lor_file_path TEXT, lor_file_name TEXT, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
+            f"""CREATE TABLE IF NOT EXISTS deadlines (id {primary_key}, student_id INTEGER NOT NULL, action TEXT NOT NULL, due_date TEXT, category TEXT, status TEXT DEFAULT 'Pending', created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
+            f"""CREATE TABLE IF NOT EXISTS prerequisites (id {primary_key}, student_id INTEGER NOT NULL, requirement TEXT NOT NULL, completed INTEGER NOT NULL DEFAULT 0, notes TEXT, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))""",
             """CREATE TABLE IF NOT EXISTS readiness_checklist (student_id INTEGER NOT NULL, item_key TEXT NOT NULL, completed INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL, PRIMARY KEY(student_id, item_key), FOREIGN KEY(student_id) REFERENCES students(id))""",
-            """CREATE TABLE IF NOT EXISTS master_universities (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, country TEXT NOT NULL, best_fit_courses TEXT, academic_requirement TEXT, key_subjects TEXT, tests TEXT, competitive_target TEXT, application_deadline TEXT, created_at TEXT NOT NULL)""",
-            """CREATE TABLE IF NOT EXISTS master_university_requirements (id INTEGER PRIMARY KEY AUTOINCREMENT, university_id INTEGER NOT NULL, requirement_name TEXT NOT NULL, category TEXT NOT NULL, description TEXT, FOREIGN KEY(university_id) REFERENCES master_universities(id))""",
-            """CREATE TABLE IF NOT EXISTS student_prerequisites (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, university_id INTEGER NOT NULL, requirement_name TEXT NOT NULL, category TEXT, description TEXT, completed INTEGER NOT NULL DEFAULT 0, notes TEXT, completed_at TEXT, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id), FOREIGN KEY(university_id) REFERENCES universities(id) ON DELETE CASCADE)""",
-            """CREATE TABLE IF NOT EXISTS alerts (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER NOT NULL, deadline_id INTEGER, item_type TEXT, severity TEXT NOT NULL, message TEXT NOT NULL, target_url TEXT, is_read INTEGER DEFAULT 0, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))"""
+            f"""CREATE TABLE IF NOT EXISTS master_universities (id {primary_key}, name TEXT UNIQUE NOT NULL, country TEXT NOT NULL, best_fit_courses TEXT, academic_requirement TEXT, key_subjects TEXT, tests TEXT, competitive_target TEXT, application_deadline TEXT, created_at TEXT NOT NULL)""",
+            f"""CREATE TABLE IF NOT EXISTS master_university_requirements (id {primary_key}, university_id INTEGER NOT NULL, requirement_name TEXT NOT NULL, category TEXT NOT NULL, description TEXT, FOREIGN KEY(university_id) REFERENCES master_universities(id))""",
+            f"""CREATE TABLE IF NOT EXISTS student_prerequisites (id {primary_key}, student_id INTEGER NOT NULL, university_id INTEGER NOT NULL, requirement_name TEXT NOT NULL, category TEXT, description TEXT, completed INTEGER NOT NULL DEFAULT 0, notes TEXT, completed_at TEXT, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id), FOREIGN KEY(university_id) REFERENCES universities(id) ON DELETE CASCADE)""",
+            f"""CREATE TABLE IF NOT EXISTS alerts (id {primary_key}, student_id INTEGER NOT NULL, deadline_id INTEGER, item_type TEXT, severity TEXT NOT NULL, message TEXT NOT NULL, target_url TEXT, is_read INTEGER DEFAULT 0, created_at TEXT NOT NULL, FOREIGN KEY(student_id) REFERENCES students(id))"""
         ]:
             cursor.execute(statement)
 
@@ -1077,7 +1119,7 @@ def init_db():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS counselor_notes (
 
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id {primary_key},
 
                 student_id INTEGER,
 

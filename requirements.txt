@@ -3,3 +3,4 @@ python-dotenv
 Werkzeug
 reportlab
 gunicorn
+psycopg2-binary
