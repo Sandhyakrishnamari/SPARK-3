@@ -1,0 +1,2226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SPARK | Student Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='spark-pdf-modal.css', v='20260903') }}">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+            min-height: 100vh;
+        }
+
+        /* ================= TOP BAR ================= */
+
+        .topbar {
+            height: 76px;
+            background: rgba(255,255,255,0.96);
+            border-bottom: 1px solid #e5e9f2;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 34px;
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            backdrop-filter: blur(12px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+
+            border-radius: 13px;
+
+            background: linear-gradient(
+                135deg,
+                #1e3a8a,
+                #4f46e5
+            );
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 21px;
+            font-weight: 800;
+
+            box-shadow:
+                0 8px 20px rgba(30,58,138,0.25);
+        }
+
+        .brand-text h2 {
+            font-size: 20px;
+            color: #172554;
+        }
+
+        .brand-text span {
+            font-size: 10px;
+            color: #7b8498;
+            letter-spacing: 1px;
+        }
+
+        .counselor-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .counselor-name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .counselor-role {
+            font-size: 11px;
+            color: #7b8498;
+            margin-top: 3px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+
+            border-radius: 50%;
+
+            background: linear-gradient(
+                135deg,
+                #dbeafe,
+                #c7d2fe
+            );
+
+            color: #1e3a8a;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 800;
+        }
+
+        /* ================= PAGE ================= */
+
+        .page {
+            max-width: 1500px;
+            margin: auto;
+            padding: 32px;
+        }
+
+        /* ================= BACK ================= */
+
+        .back-row {
+            margin-bottom: 22px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            background: white;
+            border: 1px solid #e1e6ef;
+
+            color: #334155;
+
+            padding: 10px 15px;
+
+            border-radius: 10px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #f8fafc;
+            transform: translateX(-2px);
+        }
+
+        /* ================= PROFILE HERO ================= */
+
+        .profile-hero {
+            background:
+                linear-gradient(
+                    135deg,
+                    #172554,
+                    #1e3a8a,
+                    #4338ca
+                );
+
+            border-radius: 22px;
+
+            padding: 30px;
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 30px;
+
+            box-shadow:
+                0 15px 40px rgba(30,58,138,0.18);
+
+            margin-bottom: 25px;
+        }
+
+        .profile-main {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .large-avatar {
+            width: 78px;
+            height: 78px;
+
+            border-radius: 22px;
+
+            background: rgba(255,255,255,0.16);
+
+            border: 1px solid rgba(255,255,255,0.25);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 28px;
+            font-weight: 800;
+
+            backdrop-filter: blur(8px);
+        }
+
+        .profile-info h1 {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .profile-info p {
+            color: rgba(255,255,255,0.75);
+            font-size: 13px;
+        }
+
+        .profile-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .hero-badge {
+            padding: 6px 11px;
+
+            border-radius: 20px;
+
+            background: rgba(255,255,255,0.13);
+
+            border: 1px solid rgba(255,255,255,0.18);
+
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .hero-progress {
+            min-width: 210px;
+        }
+
+        .hero-progress-title {
+            display: flex;
+            justify-content: space-between;
+
+            font-size: 12px;
+
+            margin-bottom: 9px;
+
+            color: rgba(255,255,255,0.8);
+        }
+
+        .hero-progress-bar {
+            width: 100%;
+            height: 8px;
+
+            border-radius: 20px;
+
+            background: rgba(255,255,255,0.18);
+
+            overflow: hidden;
+        }
+
+        .hero-progress-fill {
+            height: 100%;
+
+            border-radius: 20px;
+
+            background: white;
+
+            width: {{ student.progress if student.progress else 0 }}%;
+        }
+
+        /* ================= GRID ================= */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .section-card {
+            background: white;
+
+            border: 1px solid #e5e9f2;
+
+            border-radius: 20px;
+
+            padding: 24px;
+
+            box-shadow:
+                0 8px 30px rgba(15,23,42,0.04);
+        }
+
+        .section-card.full {
+            grid-column: 1 / -1;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+
+            padding-bottom: 15px;
+
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .section-icon {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 11px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #eef2ff;
+
+            font-size: 17px;
+        }
+
+        .section-title h2 {
+            font-size: 16px;
+            color: #1e293b;
+        }
+
+        .section-title p {
+            font-size: 10px;
+            color: #8a93a5;
+            margin-top: 3px;
+        }
+
+        .readonly-label {
+            font-size: 10px;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            background: #f1f5f9;
+
+            color: #64748b;
+
+            font-weight: 700;
+        }
+
+        /* ================= INFORMATION ================= */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .info-item {
+            padding: 13px 14px;
+
+            background: #f8fafc;
+
+            border-radius: 11px;
+
+            border: 1px solid #edf0f5;
+        }
+
+        .info-label {
+            color: #8a93a5;
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.5px;
+
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            color: #273449;
+
+            font-size: 13px;
+
+            font-weight: 650;
+
+            min-height: 17px;
+        }
+
+        /* ================= TAGS ================= */
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 7px 11px;
+
+            background: #eef2ff;
+
+            color: #3730a3;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        /* ================= PROGRESS ================= */
+
+        .readiness {
+            display: grid;
+
+            grid-template-columns: 160px 1fr;
+
+            gap: 25px;
+
+            align-items: center;
+        }
+
+        .progress-circle {
+            width: 130px;
+            height: 130px;
+
+            border-radius: 50%;
+
+            background:
+                conic-gradient(
+                    #4f46e5
+                    {{ student.progress if student.progress else 0 }}%,
+                    #e9edf5 0
+                );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin: auto;
+        }
+
+        .progress-inner {
+            width: 100px;
+            height: 100px;
+
+            border-radius: 50%;
+
+            background: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-direction: column;
+        }
+
+        .progress-number {
+            font-size: 25px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .progress-small {
+            font-size: 10px;
+            color: #8a93a5;
+        }
+
+        .readiness-list {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .readiness-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 10px 12px;
+
+            border-radius: 9px;
+
+            background: #f8fafc;
+        }
+
+        .readiness-name {
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .check {
+            color: #16a34a;
+            font-weight: 800;
+        }
+
+        .pending-check {
+            color: #f59e0b;
+            font-weight: 800;
+        }
+
+        /* ================= TABLE ================= */
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+
+            background: #f8fafc;
+
+            color: #64748b;
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.4px;
+
+            padding: 11px;
+        }
+
+        .data-table td {
+            padding: 12px 11px;
+
+            border-top: 1px solid #edf0f5;
+
+            font-size: 12px;
+
+            color: #475569;
+        }
+
+        .data-table tr:hover {
+            background: #fafbff;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+        .status-green {
+            background: #eafaf1;
+            color: #15803d;
+        }
+
+        .status-yellow {
+            background: #fff7e6;
+            color: #b45309;
+        }
+
+        .status-blue {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        /* ================= DOCUMENT BUTTON ================= */
+
+        .document-btn {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            text-decoration: none;
+
+            padding: 8px 11px;
+
+            border-radius: 8px;
+
+            background: #eef2ff;
+
+            color: #3730a3;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+        .document-btn:hover {
+            background: #3730a3;
+            color: white;
+        }
+
+        /* ================= NOTE ================= */
+
+        .counselor-note {
+            background: linear-gradient(
+                135deg,
+                #f8fafc,
+                #eef2ff
+            );
+
+            border: 1px solid #e1e7f5;
+
+            padding: 16px;
+
+            border-radius: 12px;
+
+            color: #475569;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 950px) {
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-card.full {
+                grid-column: auto;
+            }
+
+            .profile-hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .hero-progress {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .topbar {
+                padding: 0 17px;
+            }
+
+            .counselor-info {
+                display: none;
+            }
+
+            .page {
+                padding: 17px;
+            }
+
+            .profile-main {
+                align-items: flex-start;
+            }
+
+            .large-avatar {
+                width: 60px;
+                height: 60px;
+                border-radius: 17px;
+            }
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .readiness-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 10px 12px;
+
+            border-radius: 9px;
+
+            background: #f8fafc;
+        }
+
+        .readiness-name {
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .check {
+            color: #16a34a;
+            font-weight: 800;
+        }
+
+        .pending-check {
+            color: #f59e0b;
+            font-weight: 800;
+        }
+
+        /* ================= TABLE ================= */
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+
+            background: #f8fafc;
+
+            color: #64748b;
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.4px;
+
+            padding: 11px;
+        }
+
+        .data-table td {
+            padding: 12px 11px;
+
+            border-top: 1px solid #edf0f5;
+
+            font-size: 12px;
+
+            color: #475569;
+        }
+
+        .data-table tr:hover {
+            background: #fafbff;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+        .status-green {
+            background: #eafaf1;
+            color: #15803d;
+        }
+
+        .status-yellow {
+            background: #fff7e6;
+            color: #b45309;
+        }
+
+        .status-blue {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        /* ================= DOCUMENT BUTTON ================= */
+
+        .document-btn {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            text-decoration: none;
+
+            padding: 8px 11px;
+
+            border-radius: 8px;
+
+            background: #eef2ff;
+
+            color: #3730a3;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+        .document-btn:hover {
+            background: #3730a3;
+            color: white;
+        }
+
+        /* ================= NOTE ================= */
+
+        .counselor-note {
+            background: linear-gradient(
+                135deg,
+                #f8fafc,
+                #eef2ff
+            );
+
+            border: 1px solid #e1e7f5;
+
+            padding: 16px;
+
+            border-radius: 12px;
+
+            color: #475569;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 950px) {
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-card.full {
+                grid-column: auto;
+            }
+
+            .profile-hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .hero-progress {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .topbar {
+                padding: 0 17px;
+            }
+
+            .counselor-info {
+                display: none;
+            }
+
+            .page {
+                padding: 17px;
+            }
+
+            .profile-main {
+                align-items: flex-start;
+            }
+
+            .large-avatar {
+                width: 60px;
+                height: 60px;
+                border-radius: 17px;
+            }
+
+            .profile-info h1 {
+                font-size: 22px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     TOP BAR
+===================================================== -->
+
+<header class="topbar">
+
+    <div class="brand" style="display: flex; align-items: center; gap: 14px;">
+
+        <div class="brand-logo-card" style="height: 60px; padding: 6px 14px; background: #ffffff; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15); flex-shrink: 0;">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="The Nest School" style="max-height: 50px; width: auto; object-fit: contain;">
+        </div>
+
+        <div class="brand-text" style="display: flex; flex-direction: column;">
+            <span style="font-size: 11px; font-weight: 800; color: #1e293b; letter-spacing: 1.5px; text-transform: uppercase;">
+                SPARK PROGRAM
+            </span>
+        </div>
+
+    </div>
+
+
+    <div class="counselor-info">
+
+        <div>
+
+            <div class="counselor-name">
+                Counselor
+            </div>
+
+            <div class="counselor-role">
+                Academic Advisor
+            </div>
+
+        </div>
+
+        <div class="avatar">
+            C
+        </div>
+
+    </div>
+
+</header>
+
+<main class="page">
+
+<div class="back-row">
+    <a href="{{ url_for('counselor_dashboard') }}" class="back-btn">
+        ← Back to Students
+    </a>
+</div>
+
+<!-- =====================================================
+     PROFILE HERO
+===================================================== -->
+
+<section class="profile-hero">
+
+    <div class="profile-main">
+
+        <div class="large-avatar">
+            {{ student.name[0]|upper if student.name else 'S' }}
+        </div>
+
+        <div class="profile-info">
+            <h1>
+                {{ student.name if student.name else 'Student' }}
+            </h1>
+            <p>
+                {{ student.email if student.email else 'Email not available' }}
+            </p>
+
+            <div class="profile-badges">
+                <span class="hero-badge">
+                    {{ student.grade if student.grade else 'Grade 11' }}
+                </span>
+                <span class="hero-badge">
+                    {{ student.target_country if student.target_country else 'Country not specified' }}
+                </span>
+                <span class="hero-badge">
+                    Counselor View
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="hero-progress">
+        <div class="hero-progress-title">
+            <span>Overall Readiness</span>
+            <strong>{{ student.progress if student.progress else 0 }}%</strong>
+        </div>
+        <div class="hero-progress-bar">
+            <div class="hero-progress-fill"></div>
+        </div>
+        <button class="spark-pdf-btn spark-pdf-btn-primary spark-pdf-pulse" onclick="SparkPDFModal.open({{ student.id }})" style="margin-top: 14px; width: 100%; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.25);">
+            ⚡ Export Interactive PDF
+        </button>
+    </div>
+
+</section>
+
+<div class="dashboard-grid">
+
+<!-- =====================================================
+     PERSONAL PROFILE
+===================================================== -->
+
+<section class="section-card">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                👤
+            </div>
+
+            <div>
+
+                <h2>
+                    My Profile
+                </h2>
+
+                <p>
+                    Personal & academic information
+                </p>
+
+            </div>
+
+        </div>
+
+        <span class="readonly-label">
+            VIEW ONLY
+        </span>
+
+    </div>
+
+    <div class="info-grid">
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                Full Name
+            </div>
+
+            <div class="info-value">
+                {{ student.name or 'Not provided' }}
+            </div>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                Email
+            </div>
+
+            <div class="info-value">
+                {{ student.email or 'Not provided' }}
+            </div>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                Grade
+            </div>
+
+            <div class="info-value">
+                {{ student.grade or 'Not provided' }}
+            </div>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                Target Country
+            </div>
+
+            <div class="info-value">
+                {{ student.target_country or 'Not provided' }}
+            </div>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                Future Goal
+            </div>
+
+            <div class="info-value">
+                {{ student.future_goal or 'Not provided' }}
+            </div>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                Financial Planning
+            </div>
+
+            <div class="info-value">
+                {{ student.financial_plan or 'Not provided' }}
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ACADEMICS
+===================================================== -->
+
+<section class="section-card">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                📚
+            </div>
+
+            <div>
+
+                <h2>
+                    Academics & Tests
+                </h2>
+
+                <p>
+                    Academic performance and test planning
+                </p>
+
+            </div>
+
+        </div>
+
+        <span class="readonly-label">
+            VIEW ONLY
+        </span>
+
+    </div>
+
+
+    <div class="info-grid">
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                Academic Average
+            </div>
+
+            <div class="info-value">
+                {{ student.academic_average or 'Not provided' }}
+            </div>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                SAT
+            </div>
+
+            <div class="info-value">
+                {{ student.sat_score or 'Not attempted' }}
+            </div>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                ACT
+            </div>
+
+            <div class="info-value">
+                {{ student.act_score or 'Not attempted' }}
+            </div>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                English Test
+            </div>
+
+            <div class="info-value">
+                {{ student.english_test or 'Not attempted' }}
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     MILESTONES
+===================================================== -->
+
+<section class="section-card">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                🎯
+            </div>
+
+            <div>
+
+                <h2>
+                    My Milestones
+                </h2>
+
+                <p>
+                    IGNITE & ELEVATE progress
+                </p>
+
+            </div>
+
+        </div>
+
+        <span class="readonly-label">
+            VIEW ONLY
+        </span>
+
+    </div>
+
+
+    <div class="readiness-list">
+
+        <div class="readiness-row">
+
+            <span class="readiness-name">
+                IGNITE
+            </span>
+
+            <span class="status status-green">
+                Active
+            </span>
+
+        </div>
+
+
+        <div class="readiness-row">
+
+            <span class="readiness-name">
+                ELEVATE
+            </span>
+
+            <span class="status status-yellow">
+                In Progress
+            </span>
+
+        </div>
+
+
+        <div class="readiness-row">
+
+            <span class="readiness-name">
+                Target Date
+            </span>
+
+            <strong>
+                {{ student.target_date or 'Not set' }}
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     COLLEGE LIST
+===================================================== -->
+
+<section class="section-card">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                🎓
+            </div>
+
+            <div>
+
+                <h2>
+                    My College List
+                </h2>
+
+                <p>
+                    University planning
+                </p>
+
+            </div>
+
+        </div>
+
+        <span class="readonly-label">
+            VIEW ONLY
+        </span>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+                    <th>University</th>
+                    <th>Country</th>
+                    <th>Course</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% if universities %}
+
+                    {% for university in universities %}
+
+                    <tr>
+
+                        <td>
+                            {{ university.name }}
+                        </td>
+
+                        <td>
+                            {{ university.country }}
+                        </td>
+
+                        <td>
+                            {{ university.course }}
+                        </td>
+
+                        <td>
+                            {{ university.category }}
+                        </td>
+
+                        <td>
+
+                            <span class="status status-blue">
+                                {{ university.status }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="5">
+                            No universities added yet.
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ACTIVITIES
+===================================================== -->
+
+<section class="section-card full">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                🌟
+            </div>
+
+            <div>
+
+                <h2>
+                    Activities & Impact
+                </h2>
+
+                <p>
+                    Extracurriculars, leadership and projects
+                </p>
+
+            </div>
+
+        </div>
+
+        <span class="readonly-label">
+            VIEW ONLY
+        </span>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+                    <th>Activity</th>
+                    <th>Type</th>
+                    <th>Role</th>
+                    <th>Hours / Week</th>
+                    <th>Weeks / Year</th>
+                    <th>Impact</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% if activities %}
+
+                    {% for activity in activities %}
+
+                    <tr>
+
+                        <td>
+                            {{ activity.name }}
+                        </td>
+
+                        <td>
+                            {{ activity.type }}
+                        </td>
+
+                        <td>
+                            {{ activity.role }}
+                        </td>
+
+                        <td>
+                            {{ activity.hours }}
+                        </td>
+
+                        <td>
+                            {{ activity.weeks }}
+                        </td>
+
+                        <td>
+                            {{ activity.impact }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="6">
+                            No activities added yet.
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ESSAYS & COUNSELOR REVIEW
+===================================================== -->
+
+<section class="section-card full">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                ✍️
+            </div>
+
+            <div>
+
+                <h2>
+                    Essays & Counselor Review
+                </h2>
+
+                <p>
+                    Student essay drafts submitted for counselor recommendation and feedback
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>University / Prompt</th>
+                    <th>Uploaded Draft Letter</th>
+                    <th>Status</th>
+                    <th>Counselor Recommendation & Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if essays %}
+                    {% for item in essays %}
+                    <tr>
+                        <td style="max-width:350px;">
+                            <strong>{{ item.university or 'General Application' }}</strong>
+                            <p style="font-size:12px;color:#475569;margin-top:4px;">{{ item.essay_prompt }}</p>
+                            {% if item.deadline %}<span style="font-size:10px;color:#8a93a5;">Due: {{ item.deadline }}</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if item.file_path %}
+                                <a href="{{ url_for('download_essay_draft', essay_id=item.id) }}" class="document-btn">
+                                    📄 View Draft Letter ({{ item.file_name }})
+                                </a>
+                            {% else %}
+                                <span style="font-size:11px;color:#8a93a5;">No draft file attached</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status status-blue">
+                                {{ item.draft_status or 'Uploaded for Counselor Review' }}
+                            </span>
+                        </td>
+                        <td style="min-width:320px;">
+                            <form onsubmit="submitEssayFeedback(event, {{ item.id }})" style="display:flex;flex-direction:column;gap:8px;">
+                                <textarea name="feedback" placeholder="Write counselor recommendation & feedback notes..." style="width:100%;height:60px;padding:8px;border-radius:8px;font-size:12px;border:1px solid #dce7f8;">{{ item.feedback or '' }}</textarea>
+                                <div style="display:flex;gap:8px;">
+                                    <select name="draft_status" style="padding:6px;border-radius:6px;font-size:11px;border:1px solid #dce7f8;">
+                                        <option value="Uploaded for Counselor Review" {% if item.draft_status == 'Uploaded for Counselor Review' %}selected{% endif %}>Uploaded for Counselor Review</option>
+                                        <option value="Counselor Reviewing" {% if item.draft_status == 'Counselor Reviewing' %}selected{% endif %}>Counselor Reviewing</option>
+                                        <option value="Recommended & Approved" {% if item.draft_status == 'Recommended & Approved' %}selected{% endif %}>Recommended & Approved</option>
+                                    </select>
+                                    <button type="submit" style="background:#2563eb;color:white;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">Save Feedback</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align:center;color:#8a93a5;padding:24px;">No essays submitted by student yet.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     RECOMMENDERS & STAFF LOR WORKFLOW
+===================================================== -->
+
+<section class="section-card full">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                📜
+            </div>
+
+            <div>
+
+                <h2>
+                    Staff Recommenders & LOR
+                </h2>
+
+                <p>
+                    Student LOR requests and official staff recommendation submissions
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Staff / Teacher</th>
+                    <th>Target University & Deadline</th>
+                    <th>Brag Sheet / Student Notes</th>
+                    <th>Status</th>
+                    <th>Upload & Send Official LOR</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if recommenders %}
+                    {% for item in recommenders %}
+                    <tr>
+                        <td>
+                            <strong>👨‍🏫 {{ item.teacher_name }}</strong>
+                            <br><span style="font-size:11px;color:#64748b;">{{ item.subject or 'Staff Member' }}</span>
+                        </td>
+                        <td>
+                            <strong>{{ item.university or 'All Colleges' }}</strong>
+                            {% if item.deadline %}<br><span style="font-size:10px;color:#8a93a5;">Due: {{ item.deadline }}</span>{% endif %}
+                        </td>
+                        <td style="max-width:250px;">
+                            <div style="font-size:11px;color:#334155;max-height:80px;overflow-y:auto;">
+                                {{ item.brag_sheet or 'No brag sheet provided' }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status {% if item.lor_file_path %}status-green{% else %}status-yellow{% endif %}">
+                                {{ item.status or 'Requested' }}
+                            </span>
+                        </td>
+                        <td style="min-width:300px;">
+                            {% if item.lor_file_path %}
+                                <div style="margin-bottom:8px;">
+                                    <a href="{{ url_for('download_lor', recommender_id=item.id) }}" class="document-btn">
+                                        📥 Download Sent LOR ({{ item.lor_file_name }})
+                                    </a>
+                                </div>
+                            {% endif %}
+                            <form onsubmit="submitStaffLor(event, {{ item.id }})" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:6px;">
+                                <input type="file" name="lor_file" accept=".pdf,.doc,.docx" required style="font-size:11px;padding:4px;">
+                                <button type="submit" style="background:#16a34a;color:white;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">📤 Send Official LOR to Student</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center;color:#8a93a5;padding:24px;">No LOR requests submitted by student yet.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+<script>
+    async function submitEssayFeedback(e, essayId) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        try {
+            const r = await fetch(`/api/counselor/essay/${essayId}/feedback`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const res = await r.json();
+            alert(res.message || 'Feedback saved');
+            location.reload();
+        } catch(err) {
+            alert('Failed to save essay feedback');
+        }
+    }
+
+    async function submitStaffLor(e, recommenderId) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        try {
+            const r = await fetch(`/api/counselor/recommender/${recommenderId}/upload_lor`, {
+                method: 'POST',
+                body: formData
+            });
+            const res = await r.json();
+            alert(res.message || 'Official LOR uploaded and sent!');
+            location.reload();
+        } catch(err) {
+            alert('Failed to upload LOR');
+        }
+    }
+</script>
+
+
+
+<!-- =====================================================
+     DEADLINES
+===================================================== -->
+
+<section class="section-card">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                📅
+            </div>
+
+            <div>
+
+                <h2>
+                    Deadlines & Actions
+                </h2>
+
+                <p>
+                    Upcoming application tasks
+                </p>
+
+            </div>
+
+        </div>
+
+        <span class="readonly-label">
+            VIEW ONLY
+        </span>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+                    <th>Due Date</th>
+                    <th>Action</th>
+                    <th>University / Test</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% if deadlines %}
+
+                    {% for deadline in deadlines %}
+
+                    <tr>
+
+                        <td>
+                            {{ deadline.due_date }}
+                        </td>
+
+                        <td>
+                            {{ deadline.action }}
+                        </td>
+
+                        <td>
+                            {{ deadline.target }}
+                        </td>
+
+                        <td>
+                            {{ deadline.owner }}
+                        </td>
+
+                        <td>
+
+                            <span class="status status-yellow">
+                                {{ deadline.status }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="5">
+                            No deadlines added yet.
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     PREREQUISITES
+===================================================== -->
+
+<section class="section-card full">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                ✅
+            </div>
+
+            <div>
+
+                <h2>
+                    Prerequisites & Requirements
+                </h2>
+
+                <p>
+                    16-item university readiness checklist
+                </p>
+
+            </div>
+
+        </div>
+
+        <span class="readonly-label">
+            VIEW ONLY
+        </span>
+
+    </div>
+
+
+    <div class="readiness">
+
+
+        <div>
+
+            <div class="progress-circle">
+
+                <div class="progress-inner">
+
+                    <div class="progress-number">
+                        {{ student.progress if student.progress else 0 }}%
+                    </div>
+
+                    <div class="progress-small">
+                        Readiness
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="readiness-list">
+
+
+            <div class="readiness-row">
+
+                <span class="readiness-name">
+                    Academic Rigor / Performance
+                </span>
+
+                <span class="check">
+                    ✓
+                </span>
+
+            </div>
+
+
+            <div class="readiness-row">
+
+                <span class="readiness-name">
+                    SAT / ACT
+                </span>
+
+                <span class="check">
+                    ✓
+                </span>
+
+            </div>
+
+
+            <div class="readiness-row">
+
+                <span class="readiness-name">
+                    English Proficiency
+                </span>
+
+                <span class="check">
+                    ✓
+                </span>
+
+            </div>
+
+
+            <div class="readiness-row">
+
+                <span class="readiness-name">
+                    Extracurriculars
+                </span>
+
+                <span class="check">
+                    ✓
+                </span>
+
+            </div>
+
+
+            <div class="readiness-row">
+
+                <span class="readiness-name">
+                    Leadership
+                </span>
+
+                <span class="pending-check">
+                    ◐
+                </span>
+
+            </div>
+
+
+            <div class="readiness-row">
+
+                <span class="readiness-name">
+                    Research / Projects
+                </span>
+
+                <span class="pending-check">
+                    ◐
+                </span>
+
+            </div>
+
+
+            <div class="readiness-row">
+
+                <span class="readiness-name">
+                    Essays
+                </span>
+
+                <span class="pending-check">
+                    ◐
+                </span>
+
+            </div>
+
+
+            <div class="readiness-row">
+
+                <span class="readiness-name">
+                    Recommendations
+                </span>
+
+                <span class="pending-check">
+                    ◐
+                </span>
+
+            </div>
+
+
+            <div class="readiness-row">
+
+                <span class="readiness-name">
+                    Financial Aid
+                </span>
+
+                <span class="pending-check">
+                    ◐
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     DOCUMENTS
+===================================================== -->
+
+<section class="section-card">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                📄
+            </div>
+
+            <div>
+
+                <h2>
+                    Student Documents
+                </h2>
+
+                <p>
+                    Reports and uploaded documents
+                </p>
+
+            </div>
+
+        </div>
+
+        <span class="readonly-label">
+            VIEW ONLY
+        </span>
+
+    </div>
+
+
+    <div class="info-grid">
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                Student Report
+            </div>
+
+            <div class="info-value">
+
+                <a
+                    href="{{ url_for('counselor_download_student_record', student_id=student.id) }}"
+                    class="document-btn"
+                >
+                    📄 View Report
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <div class="info-label">
+                Documents
+            </div>
+
+            <div class="info-value">
+
+                <a
+                    href="{{ url_for('counselor_download_student_record', student_id=student.id) }}"
+                    class="document-btn"
+                >
+                    📁 View Documents
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<section class="section-card full">
+    <div class="section-header"><div class="section-title"><div class="section-icon">📋</div><div><h2>Student Planning & Readiness</h2><p>Live information entered in the student workspace</p></div></div><span class="readonly-label">VIEW ONLY</span></div>
+    <div class="table-scroll"><table class="data-table"><thead><tr><th>Area</th><th>Student entry</th><th>Status / date</th></tr></thead><tbody>
+    {% for test in planning.tests %}<tr><td>Test score</td><td>{{ test.test_name }}{% if test.score %} — {{ test.score }}{% endif %}</td><td>{{ test.status }} {{ test.test_date or '' }}</td></tr>{% endfor %}
+    {% for milestone in planning.milestones %}<tr><td>Milestone</td><td>{{ milestone.title }}</td><td>{{ milestone.status }} {{ milestone.target_date or '' }}</td></tr>{% endfor %}
+    {% for essay in planning.essays %}<tr><td>Essay</td><td>{{ essay.university or 'General' }} — {{ essay.essay_prompt }}</td><td>{{ essay.draft_status }} {{ essay.deadline or '' }}</td></tr>{% endfor %}
+    {% for deadline in planning.deadlines %}<tr><td>Deadline</td><td>{{ deadline.action }}{% if deadline.category %} — {{ deadline.category }}{% endif %}</td><td>{{ deadline.status }} {{ deadline.due_date or '' }}</td></tr>{% endfor %}
+    {% for prerequisite in planning.prerequisites %}<tr><td>Prerequisite</td><td>{{ prerequisite.requirement }}{% if prerequisite.notes %} — {{ prerequisite.notes }}{% endif %}</td><td>{{ 'Completed' if prerequisite.completed else 'Pending' }}</td></tr>{% endfor %}
+    {% if not planning.tests and not planning.milestones and not planning.essays and not planning.deadlines and not planning.prerequisites %}<tr><td colspan="3">No planning records added yet.</td></tr>{% endif %}
+    </tbody></table></div>
+    <div class="counselor-note" style="margin-top:18px;">Readiness checklist: <strong>{{ planning.checklist|selectattr('completed')|list|length }} / 16</strong> items complete. Download the complete student record above for all checklist entries and uploaded-document metadata.</div>
+</section>
+
+
+
+<!-- =====================================================
+     COUNSELOR NOTE
+===================================================== -->
+
+<section class="section-card">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                💬
+            </div>
+
+            <div>
+
+                <h2>
+                    Counselor Overview
+                </h2>
+
+                <p>
+                    Internal academic observation
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="counselor-note">
+
+        This student profile is generated directly from the
+        information submitted by the student through the SPARK
+        platform.
+
+        <br><br>
+
+        All information displayed here is read-only.
+        Student updates will automatically reflect here after
+        being saved to the central database.
+
+    </div>
+
+
+<!-- =====================================================
+     COUNSELOR NOTE
+===================================================== -->
+
+<section class="section-card">
+
+    <div class="section-header">
+
+        <div class="section-title">
+
+            <div class="section-icon">
+                💬
+            </div>
+
+            <div>
+
+                <h2>
+                    Counselor Overview
+                </h2>
+
+                <p>
+                    Internal academic observation
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="counselor-note">
+
+        This student profile is generated directly from the
+        information submitted by the student through the SPARK
+        platform.
+
+        <br><br>
+
+        All information displayed here is read-only.
+        Student updates will automatically reflect here after
+        being saved to the central database.
+
+    </div>
+
+</section>
+
+
+</div>
+
+</main>
+
+<script src="{{ url_for('static', filename='spark-pdf-modal.js') }}"></script>
+</body>
+</html>

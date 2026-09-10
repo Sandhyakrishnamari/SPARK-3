@@ -1,0 +1,114 @@
+{% extends "student/base.html" %}
+{% set active_page = 'activities' %}
+
+{% block title %}My Activities{% endblock %}
+{% block breadcrumb %}My Activities{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">My Activities &amp; Impact</h1>
+    <p class="page-subtitle">Showcase your extracurricular activities, leadership roles, and achievements.</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">My Extracurricular Activities</div>
+            <div class="card-subtitle">Your extracurricular involvement and impact</div>
+        </div>
+        <button class="add-btn btn-primary" onclick="showActivityForm()">+ Add Activity</button>
+    </div>
+
+    {% for item in activities %}
+    <div style="padding:16px 0;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+            <strong style="font-size:15px;color:var(--navy);">{{ item.name or item.activity_name }}</strong>
+            <span style="font-weight:600;color:var(--orange);"> — {{ item.type or item.category }}</span>
+            {% if item.impact or item.achievement %}
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+                ⭐ Impact / Achievement: {{ item.impact or item.achievement }}
+            </div>
+            {% endif %}
+        </div>
+        <span class="badge badge-info" style="font-size:11px;">Active</span>
+    </div>
+    {% else %}
+    <div style="text-align:center;color:var(--text-muted);padding:40px;">
+        <p>No activities added yet. Click "+ Add Activity" to log your extracurricular achievements.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block modals %}
+<div id="activityModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(7,29,73,0.5);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div class="card" style="width:90%;max-width:520px;box-shadow:var(--shadow-md);margin-bottom:0;">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Add Activity &amp; Impact</div>
+                <div class="card-subtitle">Showcase your extracurricular involvement, leadership, and awards</div>
+            </div>
+            <button type="button" onclick="closeActivityForm()" style="border:none;background:none;font-weight:800;font-size:18px;cursor:pointer;color:var(--text-muted);">×</button>
+        </div>
+        
+        <form id="activityForm" style="display:flex;flex-direction:column;gap:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="activity_name">Activity Name <span style="color:var(--coral);">*</span></label>
+                <input type="text" class="form-control" placeholder="e.g. Debate Club Captain / Robotics Team" id="activity_name" required>
+            </div>
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="category">Category <span style="color:var(--coral);">*</span></label>
+                    <input type="text" class="form-control" placeholder="e.g. Leadership, STEM, Sports" id="category" required>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="achievement">Achievement / Award</label>
+                    <input type="text" class="form-control" placeholder="e.g. 1st Place State Finals" id="achievement">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="description">Description &amp; Impact</label>
+                <textarea class="form-control" rows="3" placeholder="Describe your role, responsibilities, and achievements..." id="description"></textarea>
+            </div>
+            
+            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;">
+                <button type="button" class="btn btn-secondary" onclick="closeActivityForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Activity</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showActivityForm() { document.getElementById('activityModal').style.display = 'flex'; }
+    function closeActivityForm() { document.getElementById('activityModal').style.display = 'none'; document.getElementById('activityForm').reset(); }
+    
+    document.getElementById('activityForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = {
+            activity_name: document.getElementById('activity_name').value,
+            category: document.getElementById('category').value,
+            description: document.getElementById('description').value,
+            achievement: document.getElementById('achievement').value
+        };
+        
+        fetch('/api/student/activities', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(r => r.json()).then(resp => {
+            if(resp.success) {
+                alert('Activity saved!');
+                closeActivityForm();
+                location.reload();
+            } else {
+                alert('Error: ' + resp.message);
+            }
+        }).catch(err => alert('Error saving activity'));
+    });
+</script>
+{% endblock %}

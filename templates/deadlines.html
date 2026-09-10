@@ -1,0 +1,169 @@
+{% extends "student/base.html" %}
+{% set active_page = 'deadlines' %}
+
+{% block title %}My Deadlines &amp; Actions{% endblock %}
+{% block breadcrumb %}My Deadlines &amp; Actions{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">My Deadlines &amp; Action Center</h1>
+    <p class="page-subtitle">Stay on top of critical application deadlines, test registration dates, and priority action items.</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Upcoming Deadlines &amp; Actions</div>
+            <div class="card-subtitle">Key dates and action items synchronized with your portfolio</div>
+        </div>
+        <button class="add-btn btn-primary" onclick="showRecordForm()">+ Add Deadline</button>
+    </div>
+
+    {% for item in records %}
+    <div style="padding:16px 0;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+            <strong style="font-size:15px;color:var(--navy);">{{ item.action }}</strong>
+            <span style="font-weight:600;color:var(--orange);"> — {{ item.category or 'General' }}</span>
+            {% if item.due_date %}
+            <span style="color:var(--text-muted);font-size:12px;"> · Due: <strong style="color:var(--coral);">{{ item.due_date }}</strong></span>
+            {% endif %}
+        </div>
+        <span class="badge {% if item.status == 'Completed' %}badge-success{% elif item.status == 'In Progress' %}badge-warning{% else %}badge-info{% endif %}">
+            {{ item.status or 'Pending' }}
+        </span>
+    </div>
+    {% else %}
+    <div style="text-align:center;color:var(--text-muted);padding:40px;">
+        <p>No deadlines added yet. Click "+ Add Deadline" to set critical target dates.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block modals %}
+<div id="recordModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(7,29,73,0.5);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div class="card" style="width:90%;max-width:540px;box-shadow:var(--shadow-md);margin-bottom:0;">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Plan a Deadline</div>
+                <div class="card-subtitle">Keep your next important action visible and on track</div>
+            </div>
+            <button type="button" onclick="closeRecordForm()" style="border:none;background:none;font-weight:800;font-size:18px;cursor:pointer;color:var(--text-muted);">×</button>
+        </div>
+
+        <form id="recordForm" style="display:flex;flex-direction:column;gap:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="deadlineAction">What needs to be done? <span style="color:var(--coral);">*</span></label>
+                <input class="form-control" id="deadlineAction" name="action" placeholder="e.g. Submit SAT registration / Complete FAFSA" required autocomplete="off">
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="deadlineDate">Due Date</label>
+                    <input class="form-control" id="deadlineDate" name="due_date" type="date">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="deadlineStatus">Current Status</label>
+                    <select class="form-select" id="deadlineStatus" name="status">
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="form-label" style="margin-bottom:8px;">Category</label>
+                <div class="chip-row" id="categoryChips" style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button type="button" class="btn btn-outline category-chip active" data-category="Applications" style="font-size:11px;padding:6px 12px;">🎓 Applications</button>
+                    <button type="button" class="btn btn-outline category-chip" data-category="Testing" style="font-size:11px;padding:6px 12px;">📝 Testing</button>
+                    <button type="button" class="btn btn-outline category-chip" data-category="Documents" style="font-size:11px;padding:6px 12px;">📄 Documents</button>
+                    <button type="button" class="btn btn-outline category-chip" data-category="Financial Aid" style="font-size:11px;padding:6px 12px;">💰 Financial Aid</button>
+                    <button type="button" class="btn btn-outline category-chip" data-category="General" style="font-size:11px;padding:6px 12px;">✨ General</button>
+                </div>
+                <input id="deadlineCategory" name="category" value="Applications" type="hidden">
+            </div>
+
+            <div>
+                <label class="form-label" style="margin-bottom:8px;">Quick Date</label>
+                <div class="quick-dates" style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary quick-date" data-days="1" style="font-size:11px;padding:6px 12px;">Tomorrow</button>
+                    <button type="button" class="btn btn-secondary quick-date" data-days="7" style="font-size:11px;padding:6px 12px;">Next week</button>
+                    <button type="button" class="btn btn-secondary quick-date" data-days="30" style="font-size:11px;padding:6px 12px;">In 30 days</button>
+                </div>
+            </div>
+
+            <div class="deadline-preview" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-md);background:#F8FAFC;border:1px dashed var(--border-color);">
+                <div style="font-size:22px;">⏳</div>
+                <div>
+                    <div id="previewTitle" style="font-weight:700;font-size:13px;color:var(--navy);">Your deadline preview</div>
+                    <div id="previewMeta" style="font-size:11px;color:var(--text-muted);">Applications · No due date selected</div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;">
+                <button type="button" class="btn btn-secondary" onclick="closeRecordForm()">Cancel</button>
+                <button class="btn btn-primary" id="deadlineSubmit" type="submit">Save Deadline</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const deadlineModal = document.getElementById('recordModal');
+    const deadlineForm = document.getElementById('recordForm');
+    const actionInput = document.getElementById('deadlineAction');
+    const dateInput = document.getElementById('deadlineDate');
+    const categoryInput = document.getElementById('deadlineCategory');
+
+    function showRecordForm(){ deadlineModal.style.display = 'flex'; setTimeout(() => actionInput.focus(), 100); }
+    function closeRecordForm(){ deadlineModal.style.display = 'none'; deadlineForm.reset(); categoryInput.value = 'Applications'; document.querySelectorAll('.category-chip').forEach((chip, i) => chip.classList.toggle('active', i === 0)); updateDeadlinePreview(); }
+    
+    function updateDeadlinePreview(){
+        document.getElementById('previewTitle').textContent = actionInput.value.trim() || 'Your deadline preview';
+        document.getElementById('previewMeta').textContent = `${categoryInput.value} · ${dateInput.value ? new Date(dateInput.value+'T00:00:00').toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}) : 'No due date selected'}`;
+    }
+
+    document.querySelectorAll('.category-chip').forEach(chip => chip.addEventListener('click', () => {
+        document.querySelectorAll('.category-chip').forEach(item => item.classList.remove('active'));
+        chip.classList.add('active');
+        categoryInput.value = chip.dataset.category;
+        updateDeadlinePreview();
+    }));
+
+    document.querySelectorAll('.quick-date').forEach(button => button.addEventListener('click', () => {
+        const date = new Date();
+        date.setDate(date.getDate() + Number(button.dataset.days));
+        dateInput.value = date.toISOString().slice(0, 10);
+        updateDeadlinePreview();
+    }));
+
+    actionInput.addEventListener('input', updateDeadlinePreview);
+    dateInput.addEventListener('change', updateDeadlinePreview);
+    deadlineModal.addEventListener('click', e => { if(e.target === deadlineModal) closeRecordForm(); });
+
+    deadlineForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const submit = document.getElementById('deadlineSubmit');
+        submit.textContent = 'Saving…';
+        submit.disabled = true;
+        try {
+            const r = await fetch('/api/student/planning/deadlines', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.fromEntries(new FormData(e.target)))
+            });
+            const result = await r.json();
+            if(!result.success) throw new Error(result.message);
+            submit.textContent = 'Saved ✓';
+            setTimeout(() => location.reload(), 450);
+        } catch(error){
+            submit.textContent = 'Save Deadline';
+            submit.disabled = false;
+            alert(error.message || 'Unable to save deadline');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPARK | {% block title %}Student Portal{% endblock %}</title>
+    
+    <!-- Unified CSS Architecture -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='20260903') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='spark-pdf-modal.css', v='20260903') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Subtle Background Watermark -->
+    <div class="spark-watermark">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="The Nest School SPARK Logo">
+    </div>
+
+    <!-- Mobile Drawer Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="app">
+        <!-- Unified Global Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="brand-logo-card">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="The Nest School" class="brand-logo-img">
+                </div>
+                <div class="brand-text">
+                    <div class="brand-secondary">SPARK Program</div>
+                </div>
+            </div>
+
+            <div class="nav-scroll">
+                <div class="nav-section">
+                    <div class="nav-title">Navigation</div>
+                    
+                    <a href="{{ url_for('student_dashboard') }}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                        <span class="nav-icon">⌂</span> Overview
+                    </a>
+                    
+                    <a href="{{ url_for('student_profile') }}" class="nav-item {% if active_page == 'profile' %}active{% endif %}">
+                        <span class="nav-icon">👤</span> My Profile
+                    </a>
+                    
+                    <a href="{{ url_for('prerequisites') }}" class="nav-item {% if active_page == 'prerequisites' %}active{% endif %}">
+                        <span class="nav-icon">✓</span> My Prerequisites
+                    </a>
+                    
+                    <a href="{{ url_for('universities') }}" class="nav-item {% if active_page == 'universities' %}active{% endif %}">
+                        <span class="nav-icon">🏛</span> My Colleges
+                    </a>
+                    
+                    <a href="{{ url_for('activities') }}" class="nav-item {% if active_page == 'activities' %}active{% endif %}">
+                        <span class="nav-icon">★</span> My Activities
+                    </a>
+                    
+                    <a href="{{ url_for('academics') }}" class="nav-item {% if active_page == 'academics' %}active{% endif %}">
+                        <span class="nav-icon">🎓</span> My Academics &amp; Tests
+                    </a>
+                    
+                    <a href="{{ url_for('milestones') }}" class="nav-item {% if active_page == 'milestones' %}active{% endif %}">
+                        <span class="nav-icon">🏁</span> My Milestones
+                    </a>
+                    
+                    <a href="{{ url_for('essays') }}" class="nav-item {% if active_page == 'essays' %}active{% endif %}">
+                        <span class="nav-icon">✍️</span> My Essays &amp; Recommenders
+                    </a>
+                    
+                    <a href="{{ url_for('deadlines') }}" class="nav-item {% if active_page == 'deadlines' %}active{% endif %}">
+                        <span class="nav-icon">📅</span> My Deadlines &amp; Actions
+                    </a>
+                    
+                    <a href="{{ url_for('documents') }}" class="nav-item {% if active_page == 'documents' %}active{% endif %}">
+                        <span class="nav-icon">📁</span> My Documents
+                    </a>
+                </div>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="readiness-mini">
+                    <div class="readiness-mini-title">SPARK READINESS</div>
+                    <div class="readiness-mini-row">
+                        <div class="readiness-mini-score">{{ readiness_score|default(student.readiness_score|default(75))|round(1) }}%</div>
+                        <div class="readiness-mini-label">Active Portfolio</div>
+                    </div>
+                    <div class="mini-progress">
+                        <span style="width: {{ readiness_score|default(student.readiness_score|default(75)) }}%;"></span>
+                    </div>
+                </div>
+                <button class="nav-item" onclick="logout()">
+                    <span class="nav-icon">⇥</span> Sign Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <main class="main">
+            <!-- Unified Global Header -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu" onclick="toggleSidebar()" aria-label="Toggle navigation menu">☰</button>
+                    <div class="breadcrumb">
+                        SPARK <span>/</span> <strong>{% block breadcrumb %}Dashboard{% endblock %}</strong>
+                    </div>
+                </div>
+
+                <div class="top-actions">
+                    <div class="notification-badge" title="Deadlines & Alerts">
+                        <span style="font-size:16px;">🔔</span>
+                        <span class="notification-dot"></span>
+                    </div>
+
+                    <div class="profile">
+                        <div class="avatar">
+                            {{ student.full_name[0]|upper if student and student.full_name else 'S' }}
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-name">{{ student.full_name if student and student.full_name else 'Student' }}</div>
+                            <div class="profile-role">Grade {{ student.grade if student and student.grade else '11' }} • Student</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Specific Content -->
+            <section class="content content-fade-in">
+                {% block content %}{% endblock %}
+            </section>
+        </main>
+    </div>
+
+    {% block modals %}{% endblock %}
+
+    <!-- Global JavaScript Architecture -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script src="{{ url_for('static', filename='spark-pdf-modal.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

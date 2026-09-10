@@ -1,0 +1,391 @@
+{% extends "student/base.html" %}
+{% set active_page = 'dashboard' %}
+
+{% block title %}Overview{% endblock %}
+{% block breadcrumb %}Overview{% endblock %}
+
+{% block content %}
+<!-- WELCOME BANNER -->
+<div class="card welcome" style="display:flex;align-items:center;justify-content:space-between;background:var(--card-bg);color:var(--text-main);padding:28px 32px;border-radius:var(--radius-lg);margin-bottom:28px;border:1px solid var(--border-color);box-shadow:var(--shadow-subtle);">
+    <div>
+        <div class="welcome-label" style="color:var(--orange);font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;">
+            Student Overview
+        </div>
+        <h1 style="font-size:26px;font-weight:800;margin-bottom:6px;color:var(--navy);">
+            Good morning, {{ student.full_name or 'Student' }} 👋
+        </h1>
+        <p style="color:var(--text-muted);font-size:13px;margin:0;">
+            Let's make your Grade 11 count. Here's your portfolio progress at a glance.
+        </p>
+    </div>
+
+    <button class="report-button btn-primary" onclick="generateReport()" style="background:linear-gradient(135deg, var(--orange) 0%, var(--coral) 100%);border:none;padding:12px 20px;font-size:13px;border-radius:var(--radius-md);color:#ffffff;font-weight:800;box-shadow:var(--shadow-glow);">
+        📄 Download My Report
+    </button>
+</div>
+
+<!-- STAT CARDS GRID -->
+<div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:20px;margin-bottom:28px;">
+    <div class="card stat-card" style="margin-bottom:0;">
+        <div class="stat-top" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div class="stat-icon" style="width:40px;height:40px;border-radius:10px;background:rgba(255,155,26,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">
+                🎯
+            </div>
+            <div class="stat-trend badge badge-success">
+                ↑ 8%
+            </div>
+        </div>
+        <div class="stat-number" style="font-size:28px;font-weight:800;color:var(--navy);">
+            {{ '%.1f'|format(readiness_score or 0) }}%
+        </div>
+        <div class="stat-label" style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+            Overall Readiness
+        </div>
+    </div>
+
+    <div class="card stat-card" style="margin-bottom:0;">
+        <div class="stat-top" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div class="stat-icon" style="width:40px;height:40px;border-radius:10px;background:rgba(37,99,235,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">
+                📚
+            </div>
+            <div class="stat-trend badge badge-success">
+                ↑ 4.2%
+            </div>
+        </div>
+        <div class="stat-number" style="font-size:28px;font-weight:800;color:var(--navy);">
+            {{ '%.1f'|format(academic_average or 0) }}%
+        </div>
+        <div class="stat-label" style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+            Academic Average
+        </div>
+    </div>
+
+    <div class="card stat-card" style="margin-bottom:0;">
+        <div class="stat-top" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div class="stat-icon" style="width:40px;height:40px;border-radius:10px;background:rgba(22,163,74,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">
+                🌎
+            </div>
+            <div class="stat-trend badge badge-info">
+                Saved
+            </div>
+        </div>
+        <div class="stat-number" style="font-size:28px;font-weight:800;color:var(--navy);">
+            {{ university_count }}
+        </div>
+        <div class="stat-label" style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+            Shortlisted Universities
+        </div>
+    </div>
+
+    <div class="card stat-card" style="margin-bottom:0;">
+        <div class="stat-top" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div class="stat-icon" style="width:40px;height:40px;border-radius:10px;background:rgba(217,119,6,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">
+                ⏰
+            </div>
+            <div class="badge badge-warning">
+                Upcoming
+            </div>
+        </div>
+        <div class="stat-number" style="font-size:28px;font-weight:800;color:var(--navy);">
+            {{ alerts|length }}
+        </div>
+        <div class="stat-label" style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+            Deadline Alerts
+        </div>
+    </div>
+</div>
+
+<!-- DASHBOARD GRID LAYOUT -->
+<div class="dashboard-grid" style="display:grid;grid-template-columns:minmax(0, 1.65fr) minmax(300px, 0.9fr);gap:24px;">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-column" style="display:flex;flex-direction:column;gap:24px;">
+
+        <!-- READINESS OVERVIEW CARD -->
+        <div class="card readiness-card" style="background:linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 100%);color:white;border:none;">
+            <div class="card-header" style="border-bottom-color:rgba(255,255,255,0.1);">
+                <div>
+                    <div class="card-title" style="color:white;font-size:17px;">Your SPARK Readiness</div>
+                    <div class="card-subtitle" style="color:#A3B8CC;">Overall university preparation progress</div>
+                </div>
+                <span style="font-size:20px;color:var(--gold);">✦</span>
+            </div>
+
+            <div class="readiness-content" style="display:flex;align-items:center;gap:28px;padding-top:10px;flex-wrap:wrap;">
+                <div class="progress-ring" style="width:110px;height:110px;border-radius:50%;background:conic-gradient(var(--orange) 0deg, var(--coral) {{ (readiness_score or 72) * 3.6 }}deg, rgba(255,255,255,0.1) 0deg);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.3);flex-shrink:0;">
+                    <div class="ring-text" style="width:86px;height:86px;border-radius:50%;background:var(--navy-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                        <div class="ring-number" style="font-size:22px;font-weight:800;color:white;">{{ '%.0f'|format(readiness_score or 72) }}%</div>
+                        <div class="ring-label" style="font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;">Ready</div>
+                    </div>
+                </div>
+
+                <div class="readiness-details" style="flex:1;min-width:220px;">
+                    <div class="readiness-description" style="font-size:12.5px;color:#DBE4F0;line-height:1.5;margin-bottom:14px;">
+                        You're making strong progress. Focus on testing and prerequisite actions to stay ahead of university deadlines.
+                    </div>
+
+                    <div class="metric" style="margin-bottom:10px;">
+                        <div class="metric-row" style="display:flex;justify-content:space-between;font-size:11px;color:#DBE4F0;margin-bottom:4px;">
+                            <span>Academics</span>
+                            <strong>90%</strong>
+                        </div>
+                        <div class="metric-bar" style="height:6px;border-radius:10px;background:rgba(255,255,255,0.1);overflow:hidden;">
+                            <span style="display:block;height:100%;width:90%;background:linear-gradient(90deg, var(--orange), var(--coral));"></span>
+                        </div>
+                    </div>
+
+                    <div class="metric" style="margin-bottom:10px;">
+                        <div class="metric-row" style="display:flex;justify-content:space-between;font-size:11px;color:#DBE4F0;margin-bottom:4px;">
+                            <span>Testing &amp; Requirements</span>
+                            <strong>65%</strong>
+                        </div>
+                        <div class="metric-bar" style="height:6px;border-radius:10px;background:rgba(255,255,255,0.1);overflow:hidden;">
+                            <span style="display:block;height:100%;width:65%;background:linear-gradient(90deg, var(--orange), var(--coral));"></span>
+                        </div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-row" style="display:flex;justify-content:space-between;font-size:11px;color:#DBE4F0;margin-bottom:4px;">
+                            <span>Activities &amp; Profile</span>
+                            <strong>78%</strong>
+                        </div>
+                        <div class="metric-bar" style="height:6px;border-radius:10px;background:rgba(255,255,255,0.1);overflow:hidden;">
+                            <span style="display:block;height:100%;width:78%;background:linear-gradient(90deg, var(--orange), var(--coral));"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JOURNEY ROADMAP CARD -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">My SPARK Journey</div>
+                    <div class="card-subtitle">Your path from exploration to university application</div>
+                </div>
+                <button class="view-all btn-outline" type="button" onclick="window.location.href='{{ url_for('milestones') }}'">
+                    View Journey →
+                </button>
+            </div>
+
+            <div class="journey" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;text-align:center;position:relative;padding:10px 0;">
+                <div class="journey-stage">
+                    <div class="stage-circle completed" style="width:40px;height:40px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-weight:800;">
+                        ✓
+                    </div>
+                    <div class="stage-name" style="font-size:13px;font-weight:800;color:var(--navy);">IGNITE</div>
+                    <div class="stage-description" style="font-size:11px;color:var(--text-muted);margin-top:2px;">Discover yourself</div>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-circle current" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg, var(--orange), var(--coral));color:white;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-weight:800;box-shadow:0 0 0 4px rgba(255,155,26,0.2);">
+                        2
+                    </div>
+                    <div class="stage-name" style="font-size:13px;font-weight:800;color:var(--navy);">ELEVATE</div>
+                    <div class="stage-description" style="font-size:11px;color:var(--text-muted);margin-top:2px;">Build your profile</div>
+                </div>
+
+                <div class="journey-stage">
+                    <div class="stage-circle pending" style="width:40px;height:40px;border-radius:50%;background:#F1F5F9;color:var(--text-muted);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-weight:800;border:1px solid var(--border-color);">
+                        3
+                    </div>
+                    <div class="stage-name" style="font-size:13px;font-weight:800;color:var(--navy);">LAUNCH</div>
+                    <div class="stage-description" style="font-size:11px;color:var(--text-muted);margin-top:2px;">Apply confidently</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UNIVERSITY SHORTLIST PREVIEW -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">My Target Shortlist</div>
+                    <div class="card-subtitle">Your target universities and admission tracks</div>
+                </div>
+                <button class="view-all btn-outline" type="button" onclick="window.location.href='{{ url_for('universities') }}'">
+                    View All →
+                </button>
+            </div>
+
+            <div class="college-list" style="display:flex;flex-direction:column;gap:12px;">
+                {% for u in universities %}
+                <div class="college" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:var(--card-subtle);">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="font-size:22px;">🎓</div>
+                        <div>
+                            <div style="font-weight:700;font-size:13px;color:var(--navy);">{{ u.university_name }}</div>
+                            <div style="font-size:11px;color:var(--text-muted);">{{ u.degree or 'Undergraduate' }} • {{ u.country or 'Global' }}{% if u.deadline %} • Due {{ u.deadline }}{% endif %}</div>
+                        </div>
+                    </div>
+                    <span class="badge {% if u.application_type == 'Reach' or u.status == 'Reach' %}badge-danger{% elif u.application_type == 'Match' or u.status == 'Match' %}badge-info{% else %}badge-success{% endif %}">
+                        {{ (u.application_type or u.status or 'Target')|upper }}
+                    </span>
+                </div>
+                {% else %}
+                <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px;border:1px dashed var(--border-color);border-radius:var(--radius-md);">
+                    No universities added yet. <a href="{{ url_for('universities') }}" style="color:var(--blue);font-weight:700;text-decoration:none;">Add your target colleges →</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-column" style="display:flex;flex-direction:column;gap:24px;">
+
+        <!-- UPCOMING ALERTS CARD -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">🚨 UPCOMING &amp; IMPORTANT</div>
+                    <div class="card-subtitle">Centralized deadline &amp; requirement alerts</div>
+                </div>
+                <button class="view-all btn-outline" type="button" onclick="window.location.href='{{ url_for('deadlines') }}'">
+                    View All →
+                </button>
+            </div>
+
+            <div class="alerts-list" id="alertsList" style="display:flex;flex-direction:column;gap:10px;">
+                {% for alert in alerts %}
+                <div class="alert-card-wrapper {% if loop.index > 2 %}alert-item-extra{% endif %}" {% if loop.index > 2 %}style="display:none;"{% endif %}>
+                    <a href="{{ alert.target_url or url_for('deadlines') }}" style="text-decoration:none;color:inherit;display:block;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:#FAFBFD;transition:all 0.2s ease;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div style="width:38px;height:38px;border-radius:10px;background:rgba(233,75,36,0.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">
+                                    🔔
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;font-size:12.5px;color:var(--navy);">{{ alert.title }}</div>
+                                    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">{{ alert.message }}</div>
+                                </div>
+                            </div>
+                            <span class="badge {% if alert.severity_level in ['CRITICAL', 'URGENT'] %}badge-danger{% elif alert.severity_level == 'IMPORTANT' %}badge-warning{% else %}badge-success{% endif %}">
+                                {{ alert.severity_label }}
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                {% else %}
+                <div style="text-align:center;color:var(--text-muted);padding:24px 0;font-size:12px;">
+                    No active alerts at this time.
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if alerts|length > 2 %}
+            <div style="margin-top:14px;text-align:center;">
+                <button id="toggleAlertsBtn" type="button" class="btn btn-outline" onclick="toggleAlertsList({{ alerts|length - 2 }})" style="width:100%;font-size:12px;padding:9px 14px;justify-content:center;font-weight:800;background:#FFF9E8;">
+                    Show More ({{ alerts|length - 2 }} more) ▼
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- QUICK ACTIONS CARD -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">Quick Actions</div>
+                    <div class="card-subtitle">Keep your application portfolio updated</div>
+                </div>
+            </div>
+
+            <div class="quick-actions" style="display:grid;grid-template-columns:repeat(2, 1fr);gap:12px;">
+                <button class="quick-action" type="button" onclick="window.location.href='{{ url_for('academics') }}'" style="padding:14px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:#FAFCFF;text-align:left;cursor:pointer;transition:all 0.2s ease;">
+                    <div style="font-size:20px;margin-bottom:6px;">📚</div>
+                    <div style="font-weight:700;font-size:12px;color:var(--navy);">Update Academics</div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Add term marks</div>
+                </button>
+
+                <button class="quick-action" type="button" onclick="window.location.href='{{ url_for('universities') }}'" style="padding:14px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:#FAFCFF;text-align:left;cursor:pointer;transition:all 0.2s ease;">
+                    <div style="font-size:20px;margin-bottom:6px;">🏫</div>
+                    <div style="font-weight:700;font-size:12px;color:var(--navy);">Add College</div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Expand shortlist</div>
+                </button>
+
+                <button class="quick-action" type="button" onclick="window.location.href='{{ url_for('activities') }}'" style="padding:14px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:#FAFCFF;text-align:left;cursor:pointer;transition:all 0.2s ease;">
+                    <div style="font-size:20px;margin-bottom:6px;">⭐</div>
+                    <div style="font-weight:700;font-size:12px;color:var(--navy);">Add Activity</div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Log achievements</div>
+                </button>
+
+                <button class="quick-action" type="button" onclick="window.location.href='{{ url_for('essays') }}'" style="padding:14px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:#FAFCFF;text-align:left;cursor:pointer;transition:all 0.2s ease;">
+                    <div style="font-size:20px;margin-bottom:6px;">✍️</div>
+                    <div style="font-weight:700;font-size:12px;color:var(--navy);">Write Essays</div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Draft responses</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- PROFILE COMPLETION WIDGET -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">Profile Completion</div>
+                    <div class="card-subtitle">Complete profile for optimal counselor support</div>
+                </div>
+                <a href="{{ url_for('student_profile') }}" class="view-all btn-outline" style="text-decoration:none;">Edit →</a>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:16px;">
+                {% set pct = profile_percentage|default(0)|round|int %}
+                {% set deg = (pct * 3.6)|round|int %}
+                <div style="width:60px;height:60px;border-radius:50%;background:conic-gradient(var(--orange) 0deg, var(--gold) {{ deg }}deg, #E2E8F0 {{ deg }}deg);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <div style="width:46px;height:46px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--navy);">
+                        {{ pct }}%
+                    </div>
+                </div>
+
+                <div>
+                    <div style="font-size:13px;font-weight:800;color:var(--navy);">
+                        {% if pct >= 100 %}Complete!{% elif pct >= 75 %}Almost Complete!{% elif pct >= 50 %}In Progress{% else %}Getting Started{% endif %}
+                    </div>
+                    <div style="color:var(--text-muted);font-size:11px;line-height:1.4;margin-top:2px;">
+                        {% if pct >= 100 %}Your profile is fully completed and up to date.{% else %}Fill in your future goals, subjects, and personal details.{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function generateReport() {
+    if (typeof SparkPDFModal !== 'undefined') {
+        SparkPDFModal.open();
+    } else {
+        alert("Preparing SPARK Official Student Record...");
+    }
+}
+
+function toggleAlertsList(remainingCount) {
+    const extraItems = document.querySelectorAll('.alert-item-extra');
+    const btn = document.getElementById('toggleAlertsBtn');
+    let isExpanding = false;
+
+    extraItems.forEach(item => {
+        if (item.style.display === 'none' || item.style.display === '') {
+            isExpanding = true;
+            item.style.display = 'block';
+            requestAnimationFrame(() => {
+                item.classList.add('expanded');
+            });
+        } else {
+            item.classList.remove('expanded');
+            setTimeout(() => {
+                item.style.display = 'none';
+            }, 350);
+        }
+    });
+
+    if (btn) {
+        btn.innerHTML = isExpanding ? 'Show Less ▲' : `Show More (${remainingCount} more) ▼`;
+    }
+}
+</script>
+{% endblock %}

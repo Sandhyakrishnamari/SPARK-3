@@ -1,0 +1,814 @@
+/* =========================================================
+   SPARK — EXACT DESIGN & COLOR SYSTEM
+   static/css/style.css
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   1. DESIGN TOKENS & EXACT COLOR PALETTE
+   --------------------------------------------------------- */
+:root {
+    /* Brand Palette */
+    --navy: #0B3475;
+    --navy-dark: #07224e;
+    --navy-secondary: #17345F;
+    --primary: #0B3475;
+    --secondary: #17345F;
+
+    /* Accents */
+    --orange: #FF9B1A;
+    --accent: #FF9B1A;
+    --coral: #E94B24;
+    --gold: #E8C978;
+    --gold-light: #FFF9E8;
+
+    /* Backgrounds */
+    --bg-main: #FCE6AE;
+    --card-bg: #FFF9E8;
+    --card-subtle: #FFFDF5;
+
+    /* Status Colors */
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --warning: #FF9B1A;
+    --warning-bg: #fffbeb;
+    --danger: #E94B24;
+    --danger-bg: #fef2f2;
+    --info: #0369a1;
+    --info-bg: #f0f9ff;
+
+    /* Typography & Borders */
+    --text-main: #0B3475;
+    --text-muted: #536B8E;
+    --text-dark: #0B3475;
+    --border-color: #E8C978;
+
+    /* Dimensions */
+    --sidebar-width: 260px;
+    --header-height: 72px;
+
+    /* Radii & Elevation */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-xl: 22px;
+
+    --shadow-subtle: 0 6px 20px rgba(11, 52, 117, 0.05);
+    --shadow-md: 0 10px 30px rgba(11, 52, 117, 0.10);
+    --shadow-glow: 0 6px 20px rgba(255, 155, 26, 0.35);
+
+    /* Animation Timing */
+    --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---------------------------------------------------------
+   2. GLOBAL RESET & BASE TYPOGRAPHY
+   --------------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ---------------------------------------------------------
+   3. NEST SCHOOL LOGO WATERMARK
+   --------------------------------------------------------- */
+.spark-watermark {
+    position: fixed;
+    top: 50%;
+    left: calc(50% + (var(--sidebar-width) / 2));
+    transform: translate(-50%, -50%);
+    width: 720px;
+    max-width: 68vw;
+    height: auto;
+    opacity: 0.10;
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+    transition: opacity 0.3s ease;
+}
+
+.spark-watermark img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* ---------------------------------------------------------
+   4. LAYOUT CONTAINERS
+   --------------------------------------------------------- */
+.app {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+.main {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left var(--transition-normal), width var(--transition-normal);
+}
+
+.content {
+    padding: 32px 36px 80px;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    flex: 1;
+}
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-fade-in {
+    animation: contentFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ---------------------------------------------------------
+   5. UNIFIED GLOBAL SIDEBAR
+   --------------------------------------------------------- */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: linear-gradient(180deg, var(--navy-dark) 0%, var(--navy) 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    padding: 22px 16px;
+    z-index: 100;
+    border-right: 1px solid var(--gold);
+    box-shadow: 4px 0 25px rgba(7, 34, 78, 0.2);
+    transition: transform var(--transition-normal);
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding: 10px 10px 18px;
+    border-bottom: 1px solid rgba(232, 201, 120, 0.25);
+    margin-bottom: 18px;
+    width: 100%;
+}
+
+.brand-logo-card {
+    width: 88%;
+    height: 90px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: #FFFFFF;
+    border: 1.5px solid var(--gold);
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+}
+
+.brand-logo-card:hover {
+    transform: translateY(-2px);
+}
+
+.brand-logo-img {
+    max-height: 70px;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.brand-name, .brand-primary {
+    display: none;
+}
+
+.brand-caption, .brand-secondary {
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.nav-scroll {
+    flex: 1;
+    overflow-y: auto;
+    margin-right: -4px;
+    padding-right: 4px;
+}
+
+.nav-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+.nav-scroll::-webkit-scrollbar-thumb {
+    background: rgba(232, 201, 120, 0.3);
+    border-radius: 4px;
+}
+
+.nav-section {
+    margin-bottom: 20px;
+}
+
+.nav-title {
+    color: var(--gold);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    padding: 0 12px;
+    margin-bottom: 8px;
+    opacity: 0.95;
+}
+
+.nav-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: transparent;
+    color: #DBE4F0;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 3px;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.nav-item:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.09);
+    transform: translateX(3px);
+}
+
+.nav-item.active {
+    color: #ffffff;
+    background: linear-gradient(90deg, var(--orange) 0%, var(--coral) 100%);
+    font-weight: 800;
+    box-shadow: var(--shadow-glow);
+    transform: translateX(0);
+}
+
+.nav-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgba(232, 201, 120, 0.25);
+}
+
+.readiness-mini {
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(232, 201, 120, 0.3);
+    margin-bottom: 10px;
+}
+
+.readiness-mini-title {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.readiness-mini-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.readiness-mini-score {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.readiness-mini-label {
+    font-size: 10px;
+    color: #E8C978;
+}
+
+.mini-progress {
+    height: 5px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.mini-progress span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--coral));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+/* ---------------------------------------------------------
+   6. UNIFIED GLOBAL HEADER / TOPBAR
+   --------------------------------------------------------- */
+.topbar {
+    height: var(--header-height);
+    background: rgba(255, 249, 232, 0.95);
+    border-bottom: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 36px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 2px 12px rgba(11, 52, 117, 0.04);
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.mobile-menu {
+    display: none;
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--navy);
+    padding: 6px;
+    border-radius: 8px;
+    transition: background var(--transition-fast);
+}
+
+.mobile-menu:hover {
+    background: rgba(11, 52, 117, 0.08);
+}
+
+.breadcrumb {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breadcrumb span {
+    opacity: 0.5;
+}
+
+.breadcrumb strong {
+    color: var(--navy);
+    font-weight: 800;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notification-badge {
+    position: relative;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 10px;
+    color: var(--navy);
+    transition: background var(--transition-fast);
+}
+
+.notification-badge:hover {
+    background: rgba(11, 52, 117, 0.08);
+}
+
+.notification-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--coral);
+    border: 2px solid #FFF9E8;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    color: var(--navy);
+    background: linear-gradient(135deg, var(--orange) 0%, var(--gold) 100%);
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(255, 155, 26, 0.3);
+    flex-shrink: 0;
+}
+
+.profile-info {
+    line-height: 1.25;
+}
+
+.profile-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--navy);
+}
+
+.profile-role {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+/* ---------------------------------------------------------
+   7. PAGE HEADERS & SECTIONS
+   --------------------------------------------------------- */
+.page-header {
+    margin-bottom: 28px;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+}
+
+.page-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------
+   8. CARD SYSTEM & HOVER ANIMATIONS
+   --------------------------------------------------------- */
+.card, .stat-card, .welcome, .stat-card-counselor, .essay-item, .rec-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-subtle);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
+}
+
+.card:hover, .stat-card:hover, .welcome:hover, .stat-card-counselor:hover, .essay-item:hover, .rec-item:hover {
+    box-shadow: 0 14px 32px rgba(11, 52, 117, 0.12);
+    transform: translateY(-4px);
+    border-color: var(--orange);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--navy);
+}
+
+.card-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Collapsible Alerts Scroll-Out Animation */
+.alert-item-extra {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-10px);
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, transform 0.35s ease;
+}
+
+.alert-item-extra.expanded {
+    max-height: 250px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ---------------------------------------------------------
+   9. BUTTONS & INTERACTION ELEMENTS
+   --------------------------------------------------------- */
+.btn, .add-btn, .save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+}
+
+.btn-primary, .add-btn, .save-button {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-secondary) 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(11, 52, 117, 0.25);
+}
+
+.btn-primary:hover, .add-btn:hover, .save-button:hover {
+    background: linear-gradient(135deg, var(--orange) 0%, var(--coral) 100%);
+    color: #ffffff;
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: rgba(11, 52, 117, 0.08);
+    color: var(--navy);
+}
+
+.btn-secondary:hover {
+    background: rgba(11, 52, 117, 0.15);
+    color: var(--navy);
+}
+
+.btn-outline {
+    background: #FFF9E8;
+    border: 1px solid var(--border-color);
+    color: var(--navy);
+}
+
+.btn-outline:hover {
+    border-color: var(--orange);
+    background: #FFF3D6;
+    transform: translateY(-1px);
+}
+
+.btn-icon {
+    font-weight: 800;
+    font-size: 15px;
+}
+
+/* ---------------------------------------------------------
+   10. FORMS & INPUT CONTROLS
+   --------------------------------------------------------- */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 6px;
+}
+
+.form-control, .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: #FFFDF5;
+    color: var(--text-main);
+    font-size: 13px;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus, .form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(255, 155, 26, 0.25);
+    background: #ffffff;
+}
+
+/* ---------------------------------------------------------
+   11. BADGES & STATUS PILLS
+   --------------------------------------------------------- */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.badge-success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(22, 163, 74, 0.3); }
+.badge-warning { background: var(--warning-bg); color: #b45309;        border: 1px solid rgba(255, 155, 26, 0.4); }
+.badge-danger  { background: var(--danger-bg);  color: var(--danger);  border: 1px solid rgba(233, 75, 36, 0.3); }
+.badge-info    { background: var(--info-bg);    color: var(--info);    border: 1px solid rgba(3, 105, 161, 0.3); }
+
+/* ---------------------------------------------------------
+   12. COUNTRY TABS & CARDS (FOR PREREQUISITES)
+   --------------------------------------------------------- */
+.country-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.country-tab {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--navy);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.country-tab:hover {
+    border-color: var(--orange);
+    transform: translateY(-2px);
+}
+
+.country-tab.active {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-secondary) 100%);
+    color: #ffffff;
+    border-color: var(--navy);
+    box-shadow: 0 4px 15px rgba(11, 52, 117, 0.25);
+}
+
+.country-flag {
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* ---------------------------------------------------------
+   13. TABLES
+   --------------------------------------------------------- */
+.table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+table, .spark-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: #FFF9E8;
+}
+
+th {
+    background: #FCE6AE;
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+}
+
+td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background: rgba(255, 155, 26, 0.06);
+}
+
+/* ---------------------------------------------------------
+   14. MOBILE RESPONSIVE DRAWER & OVERLAY
+   --------------------------------------------------------- */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 34, 78, 0.55);
+    backdrop-filter: blur(4px);
+    z-index: 90;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .mobile-menu {
+        display: flex;
+    }
+
+    .topbar {
+        padding: 0 18px;
+    }
+
+    .content {
+        padding: 20px 18px 60px;
+    }
+
+    .spark-watermark {
+        left: 50%;
+        width: 80vw;
+    }
+}

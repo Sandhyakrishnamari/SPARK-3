@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SPARK | Students</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='spark-pdf-modal.css', v='20260903') }}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+            min-height: 100vh;
+        }
+
+        /* ================= HEADER ================= */
+
+        .topbar {
+            height: 76px;
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid #e5e9f2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 34px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .brand-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #1e3a8a, #4f46e5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(30,58,138,0.25);
+        }
+
+        .brand-text h2 {
+            font-size: 20px;
+            color: #172554;
+        }
+
+        .brand-text span {
+            font-size: 11px;
+            color: #7b8498;
+            letter-spacing: 1px;
+        }
+
+        .counselor-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #dbeafe, #c7d2fe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+
+        .counselor-name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .counselor-role {
+            font-size: 11px;
+            color: #7b8498;
+        }
+
+        /* ================= PAGE ================= */
+
+        .page {
+            padding: 34px;
+            max-width: 1500px;
+            margin: auto;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 28px;
+            gap: 20px;
+        }
+
+        .heading-left h1 {
+            font-size: 32px;
+            color: #111827;
+            margin-bottom: 7px;
+        }
+
+        .heading-left p {
+            color: #697386;
+            font-size: 14px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            background: white;
+            border: 1px solid #e1e6ef;
+            color: #334155;
+            padding: 11px 17px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        /* ================= STAT CARDS ================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e7ebf2;
+            border-radius: 18px;
+            padding: 21px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 8px 25px rgba(15,23,42,0.04);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+        }
+
+        .blue {
+            background: #eaf2ff;
+            color: #2563eb;
+        }
+
+        .green {
+            background: #eafaf1;
+            color: #16a34a;
+        }
+
+        .purple {
+            background: #f2edff;
+            color: #7c3aed;
+        }
+
+        .orange {
+            background: #fff4e5;
+            color: #ea580c;
+        }
+
+        .stat-value {
+            font-size: 25px;
+            font-weight: 800;
+            color: #172033;
+        }
+
+        .stat-label {
+            color: #7b8498;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        /* ================= MAIN CARD ================= */
+
+        .students-card {
+            background: white;
+            border: 1px solid #e5e9f2;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 35px rgba(15,23,42,0.05);
+        }
+
+        .card-header {
+            padding: 22px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #edf0f5;
+            gap: 20px;
+        }
+
+        .card-title h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .card-title p {
+            font-size: 12px;
+            color: #8a93a5;
+        }
+
+        .search-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box {
+            width: 270px;
+            height: 42px;
+            border: 1px solid #dfe4ec;
+            border-radius: 10px;
+            padding: 0 14px;
+            outline: none;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .search-box:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79,70,229,0.08);
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        thead {
+            background: #f8fafc;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 20px;
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        td {
+            padding: 17px 20px;
+            border-top: 1px solid #eef1f5;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        tbody tr {
+            transition: 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #fafbff;
+        }
+
+        .student-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #dbeafe, #ede9fe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3730a3;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .student-name {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .student-email {
+            color: #8a93a5;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .grade {
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .country {
+            font-weight: 600;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .active {
+            background: #eafaf1;
+            color: #15803d;
+        }
+
+        .pending {
+            background: #fff7e6;
+            color: #b45309;
+        }
+
+        .complete {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        /* ================= PROGRESS ================= */
+
+        .progress-container {
+            width: 120px;
+        }
+
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-bottom: 6px;
+            color: #64748b;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            border-radius: 20px;
+            background: #edf0f5;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #2563eb, #6366f1);
+        }
+
+        /* ================= ACTION ================= */
+
+        .view-btn {
+            border: none;
+            background: #eef2ff;
+            color: #3730a3;
+            padding: 8px 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .view-btn:hover {
+            background: #3730a3;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* ================= EMPTY ================= */
+
+        .empty-state {
+            text-align: center;
+            padding: 65px 20px;
+            color: #7b8498;
+        }
+
+        .empty-icon {
+            font-size: 45px;
+            margin-bottom: 14px;
+        }
+
+        .empty-state h3 {
+            color: #334155;
+            margin-bottom: 7px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1000px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .page {
+                padding: 22px;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .topbar {
+                padding: 0 17px;
+            }
+
+            .counselor-info {
+                display: none;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .card-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .search-area,
+            .search-box {
+                width: 100%;
+            }
+
+            .page {
+                padding: 17px;
+            }
+
+            .heading-left h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= TOP BAR ================= -->
+
+<header class="topbar">
+
+    <div class="brand" style="display: flex; align-items: center; gap: 14px;">
+        <div class="brand-logo-card" style="height: 60px; padding: 6px 14px; background: #ffffff; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15); flex-shrink: 0;">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="The Nest School" style="max-height: 50px; width: auto; object-fit: contain;">
+        </div>
+
+        <div class="brand-text" style="display: flex; flex-direction: column;">
+            <span style="font-size: 11px; font-weight: 800; color: #1e293b; letter-spacing: 1.5px; text-transform: uppercase;">SPARK PROGRAM</span>
+        </div>
+    </div>
+
+    <div class="counselor-info">
+
+        <div>
+            <div class="counselor-name">
+                Counselor
+            </div>
+
+            <div class="counselor-role">
+                Academic Advisor
+            </div>
+        </div>
+
+        <div class="avatar">
+            C
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- ================= PAGE ================= -->
+
+<main class="page">
+
+    <div class="page-heading">
+
+        <div class="heading-left">
+
+            <h1>Students</h1>
+
+            <p>
+                Monitor student progress, academic readiness and university planning.
+            </p>
+
+        </div>
+
+        <a href="{{ url_for('counselor_dashboard') }}" class="back-btn">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- ================= STATISTICS ================= -->
+
+    <section class="stats">
+
+        <div class="stat-card">
+
+            <div class="stat-icon blue">
+                👥
+            </div>
+
+            <div>
+                <div class="stat-value">
+                    {{ students|length if students else 0 }}
+                </div>
+
+                <div class="stat-label">
+                    Total Students
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon green">
+                ✓
+            </div>
+
+            <div>
+                <div class="stat-value">
+                    {{ active_students if active_students is defined else 0 }}
+                </div>
+
+                <div class="stat-label">
+                    Active Students
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon purple">
+                🎓
+            </div>
+
+            <div>
+                <div class="stat-value">
+                    {{ applications if applications is defined else 0 }}
+                </div>
+
+                <div class="stat-label">
+                    Applications
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon orange">
+                ⚡
+            </div>
+
+            <div>
+                <div class="stat-value">
+                    {{ pending if pending is defined else 0 }}
+                </div>
+
+                <div class="stat-label">
+                    Pending Actions
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= STUDENT TABLE ================= -->
+
+    <section class="students-card">
+
+        <div class="card-header">
+
+            <div class="card-title">
+
+                <h3>Student Directory</h3>
+
+                <p>
+                    Select a student to view their complete SPARK profile.
+                </p>
+
+            </div>
+
+
+            <div class="search-area">
+
+                <input
+                    type="text"
+                    id="studentSearch"
+                    class="search-box"
+                    placeholder="Search student..."
+                    onkeyup="searchStudents()"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            {% if false %}
+
+            <table id="studentsTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Student</th>
+
+                        <th>Grade</th>
+
+                        <th>Target Country</th>
+
+                        <th>Progress</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for student in students %}
+
+                    <tr>
+
+                        <!-- Student -->
+
+                        <td>
+
+                            <div class="student-cell">
+
+                                <div class="student-avatar">
+
+                                    {{ student.name[0]|upper if student.name else 'S' }}
+
+                                </div>
+
+                                <div>
+
+                                    <div class="student-name">
+                                        {{ student.name }}
+                                    </div>
+
+                                    <div class="student-email">
+                                        {{ student.email }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Grade -->
+
+                        <td>
+
+                            <span class="grade">
+
+                                {{ student.grade if student.grade else 'Grade 11' }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- Country -->
+
+                        <td>
+
+                            <span class="country">
+
+                                {{ student.target_country if student.target_country else 'Not specified' }}
+
+                            </span>
+
+                        </td>
+
+            <div class="stat-icon blue">
+                👥
+            </div>
+
+            <div>
+                <div class="stat-value">
+                    {{ students|length if students else 0 }}
+                </div>
+
+                <div class="stat-label">
+                    Total Students
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon green">
+                ✓
+            </div>
+
+            <div>
+                <div class="stat-value">
+                    {{ active_students if active_students is defined else 0 }}
+                </div>
+
+                <div class="stat-label">
+                    Active Students
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon purple">
+                🎓
+            </div>
+
+            <div>
+                <div class="stat-value">
+                    {{ applications if applications is defined else 0 }}
+                </div>
+
+                <div class="stat-label">
+                    Applications
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon orange">
+                ⚡
+            </div>
+
+            <div>
+                <div class="stat-value">
+                    {{ pending if pending is defined else 0 }}
+                </div>
+
+                <div class="stat-label">
+                    Pending Actions
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+            {% endfor %}
+            {% endif %}
+
+        <!-- ================= STUDENT TABLE ================= -->
+
+    <section class="students-card">
+
+        <div class="card-header">
+
+            <div class="card-title">
+
+                <h3>Student Directory</h3>
+
+                <p>
+                    Select a student to view their complete SPARK profile.
+                </p>
+
+            </div>
+
+
+            <div class="search-area">
+
+                <input
+                    type="text"
+                    id="studentSearch"
+                    class="search-box"
+                    placeholder="Search student..."
+                    onkeyup="searchStudents()"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            {% if students %}
+
+            <table id="studentsTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Student</th>
+
+                        <th>Grade</th>
+
+                        <th>Target Country</th>
+
+                        <th>Progress</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for student in students %}
+
+                    <tr>
+
+                        <!-- Student -->
+
+                        <td>
+
+                            <div class="student-cell">
+
+                                <div class="student-avatar">
+
+                                    {{ student.name[0]|upper if student.name else 'S' }}
+
+                                </div>
+
+                                <div>
+
+                                    <div class="student-name">
+                                        {{ student.name }}
+                                    </div>
+
+                                    <div class="student-email">
+                                        {{ student.email }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- Grade -->
+
+                        <td>
+
+                            <span class="grade">
+
+                                {{ student.grade if student.grade else 'Grade 11' }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- Country -->
+
+                        <td>
+
+                            <span class="country">
+
+                                {{ student.target_country if student.target_country else 'Not specified' }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- Progress -->
+
+                        <td>
+
+                            <div class="progress-container">
+                                <div class="progress-top">
+                                    <span>Readiness</span>
+                                    <span>{{ student.progress if student.progress else 0 }}%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ student.progress if student.progress else 0 }}%;"></div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Status -->
+                        <td>
+                            {% if student.status == 'Complete' %}
+                                <span class="status complete">Complete</span>
+                            {% elif student.status == 'Pending' %}
+                                <span class="status pending">Pending</span>
+                            {% else %}
+                                <span class="status active">Active</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Action -->
+                        <td>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <a href="{{ url_for('counselor_student_profile', student_id=student.id) }}">
+                                    <button class="view-btn">View Profile →</button>
+                                </a>
+                                <button class="view-btn" onclick="SparkPDFModal.open({{ student.id }})" style="background:#FFF3D6;border-color:#E8C978;color:#0B3475;" title="Download Interactive PDF Report">
+                                    📄 PDF
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <!-- EMPTY DATABASE -->
+            <div class="empty-state">
+                <div class="empty-icon">👨‍🎓</div>
+                <h3>No students yet</h3>
+                <p>Student accounts will appear here automatically after registration.</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</main>
+
+<script>
+function searchStudents() {
+    const input = document.getElementById("studentSearch").value.toLowerCase();
+    const table = document.getElementById("studentsTable");
+    if (!table) return;
+    const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+    for (let i = 0; i < rows.length; i++) {
+        const text = rows[i].innerText.toLowerCase();
+        if (text.includes(input)) {
+            rows[i].style.display = "";
+        } else {
+            rows[i].style.display = "none";
+        }
+    }
+}
+</script>
+<script src="{{ url_for('static', filename='spark-pdf-modal.js') }}"></script>
+</body>
+</html>

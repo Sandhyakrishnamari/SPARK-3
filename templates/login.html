@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE NEST SCHOOL | SPARK Student Development & Guidance Portal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* =====================================================
+           1. DASHBOARD-MATCHED COLOR SYSTEM & DESIGN TOKENS
+        ===================================================== */
+        :root {
+            /* Exact Dashboard Palette */
+            --navy: #0B3475;
+            --navy-dark: #07224e;
+            --navy-secondary: #17345F;
+            
+            --orange: #FF9B1A;
+            --accent: #FF9B1A;
+            --coral: #E94B24;
+            --gold: #E8C978;
+            --gold-light: #FFF9E8;
+            
+            --bg-main: #FCE6AE;
+            --card-bg: #FFF9E8;
+            --card-subtle: #FFFDF5;
+            
+            --text-dark: #0B3475;
+            --text-muted: #536B8E;
+            --border-color: #E8C978;
+            --border-focus: #FF9B1A;
+            
+            --radius-pill: 9999px;
+            --radius-xl: 24px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            
+            --shadow-subtle: 0 6px 20px rgba(11, 52, 117, 0.08);
+            --shadow-md: 0 10px 30px rgba(11, 52, 117, 0.12);
+            --shadow-glow: 0 6px 25px rgba(255, 155, 26, 0.35);
+            
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* DARK THEME OVERRIDES */
+        [data-theme="dark"] {
+            --bg-main: #071738;
+            --card-bg: #0B244D;
+            --card-subtle: #0E2F64;
+            --text-dark: #FFF9E8;
+            --text-muted: #94A3B8;
+            --border-color: #1D3B6A;
+            --shadow-glow: 0 0 30px rgba(255, 155, 26, 0.3);
+        }
+
+        /* =====================================================
+           2. GLOBAL RESET & BASE STYLES
+        ===================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Smooth Page Entrance */
+        body {
+            opacity: 0;
+            animation: pageFadeIn 0.8s ease forwards;
+        }
+
+        @keyframes pageFadeIn {
+            to { opacity: 1; }
+        }
+
+        /* =====================================================
+           3. MAIN 2-COLUMN SPLIT-SCREEN LAYOUT
+        ===================================================== */
+        .viewport-wrapper {
+            display: flex;
+            min-height: 100vh;
+            width: 100vw;
+        }
+
+        /* -----------------------------------------------------
+           LEFT SECTION — THE NEST SCHOOL REAL STUDENTS (60% Desktop)
+        ----------------------------------------------------- */
+        .hero-section {
+            flex: 0 0 60%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 56px 48px;
+            overflow: hidden;
+            background-color: var(--navy-dark);
+        }
+
+        /* Real Student Photo with Ken Burns Slow Zoom */
+        .hero-bg-photo {
+            position: absolute;
+            inset: 0;
+            background-image: url("{{ url_for('static', filename='nest-students.jpg') }}");
+            background-size: cover;
+            background-position: center 25%;
+            transform: scale(1.06);
+            animation: kenBurnsZoom 18s ease-in-out infinite alternate;
+            filter: contrast(1.05) saturate(1.1);
+        }
+
+        @keyframes kenBurnsZoom {
+            0% { transform: scale(1.04) translateY(0); }
+            100% { transform: scale(1.14) translateY(-12px); }
+        }
+
+        /* Dashboard-Matched Navy & Gold Gradient Overlay */
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                150deg,
+                rgba(7, 34, 78, 0.92) 0%,
+                rgba(11, 52, 117, 0.85) 50%,
+                rgba(233, 75, 36, 0.65) 100%
+            );
+            backdrop-filter: blur(2px);
+        }
+
+        /* Ambient Light Flares */
+        .ambient-flare {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(60px);
+            opacity: 0.35;
+        }
+
+        .flare-1 {
+            width: 340px;
+            height: 340px;
+            background: radial-gradient(circle, rgba(255, 155, 26, 0.6), transparent 70%);
+            top: -60px;
+            left: -60px;
+            animation: pulseFlare 8s ease-in-out infinite alternate;
+        }
+
+        .flare-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(233, 75, 36, 0.5), transparent 70%);
+            bottom: -80px;
+            right: -80px;
+            animation: pulseFlare 10s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes pulseFlare {
+            0% { transform: scale(0.9); opacity: 0.3; }
+            100% { transform: scale(1.25); opacity: 0.55; }
+        }
+
+        /* Hero Content & Presentation Header */
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin: auto 0;
+            max-width: 680px;
+        }
+
+        /* Meenakshi Sundararajan School of Management (20–25px) */
+        .institution-title-text {
+            font-size: clamp(20px, 2.2vw, 25px);
+            font-weight: 800;
+            color: #FFF9E8;
+            letter-spacing: 0.5px;
+            line-height: 1.25;
+            margin-bottom: 6px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Proudly Presents */
+        .presents-script-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--orange);
+            font-style: italic;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Large Visually Dominant Logo Card */
+        .hero-logo-card {
+            position: relative;
+            padding: 22px 44px;
+            background: rgba(255, 249, 232, 0.96);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35), 0 0 0 1.5px var(--gold);
+            backdrop-filter: blur(16px);
+            margin-bottom: 28px;
+            transition: transform 0.4s var(--transition-bounce);
+        }
+
+        .hero-logo-card:hover {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .hero-logo-img {
+            max-height: 76px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* THE NEST SCHOOL SPARK PROGRAM — Sparkling Shimmer Animation */
+        .spark-program-title {
+            font-size: clamp(24px, 2.8vw, 34px);
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            line-height: 1.15;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+
+            /* Luxury Shimmer Gradient */
+            background: linear-gradient(
+                110deg,
+                #FFFFFF 0%,
+                #FFF9E8 25%,
+                #FF9B1A 45%,
+                #FFFFFF 55%,
+                #E8C978 75%,
+                #FFFFFF 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: sparkShimmer 6s linear infinite;
+            filter: drop-shadow(0 4px 15px rgba(255, 155, 26, 0.3));
+        }
+
+        @keyframes sparkShimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Sparkling Star Particle Aura */
+        .spark-program-title::after {
+            content: '✨';
+            position: absolute;
+            right: -28px;
+            top: -6px;
+            font-size: 20px;
+            -webkit-text-fill-color: initial;
+            animation: sparkStarPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes sparkStarPulse {
+            0% { transform: scale(0.9) rotate(-10deg); opacity: 0.7; }
+            100% { transform: scale(1.25) rotate(15deg); opacity: 1; filter: drop-shadow(0 0 10px #FF9B1A); }
+        }
+
+        .portal-subtitle-text {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: rgba(255, 249, 232, 0.9);
+            line-height: 1.5;
+            max-width: 520px;
+        }
+
+        /* Floating Feature Cards on Student Photo */
+        .floating-cards-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 36px;
+        }
+
+        .hero-feature-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            border-radius: var(--radius-pill);
+            background: rgba(255, 249, 232, 0.14);
+            border: 1px solid rgba(232, 201, 120, 0.3);
+            color: #FFF9E8;
+            font-size: 13px;
+            font-weight: 600;
+            backdrop-filter: blur(12px);
+            transition: all 0.25s ease;
+        }
+
+        .hero-feature-card:hover {
+            background: rgba(255, 249, 232, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .hero-feature-card svg {
+            width: 16px;
+            height: 16px;
+            color: var(--orange);
+            stroke-width: 2.5;
+        }
+
+        .hero-footer-note {
+            position: relative;
+            z-index: 2;
+            color: rgba(255, 249, 232, 0.55);
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        /* -----------------------------------------------------
+           RIGHT SECTION — THE NEST SCHOOL LOGIN CARD (40% Desktop)
+        ----------------------------------------------------- */
+        .auth-section {
+            flex: 0 0 40%;
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px clamp(28px, 4vw, 56px);
+            position: relative;
+            overflow-y: auto;
+            transition: background-color var(--transition-normal);
+        }
+
+        /* Entrance Slide-Up Animation */
+        .auth-container {
+            max-width: 420px;
+            width: 100%;
+            margin: auto;
+            animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Right Header — THE NEST SCHOOL Prominent Branding */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .auth-nest-logo {
+            max-height: 56px;
+            width: auto;
+            margin: 0 auto 12px;
+            display: block;
+            object-fit: contain;
+        }
+
+        .auth-spark-subtag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: var(--radius-pill);
+            background: rgba(255, 155, 26, 0.12);
+            border: 1px solid var(--border-color);
+            color: var(--navy);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        [data-theme="dark"] .auth-spark-subtag {
+            color: var(--orange);
+            background: rgba(255, 155, 26, 0.15);
+        }
+
+        .auth-spark-subtag svg {
+            width: 13px;
+            height: 13px;
+            fill: var(--orange);
+        }
+
+        .auth-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .auth-subtitle {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* =====================================================
+           4. ROLE SELECTOR SLIDING PILL TOGGLE
+        ===================================================== */
+        .role-toggle-wrapper {
+            margin-bottom: 24px;
+        }
+
+        .role-pill-container {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--bg-main);
+            border: 1.5px solid var(--border-color);
+            padding: 4px;
+            border-radius: var(--radius-pill);
+            transition: all var(--transition-normal);
+        }
+
+        .role-pill-slider {
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+            border-radius: var(--radius-pill);
+            box-shadow: 0 4px 14px rgba(11, 52, 117, 0.35);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background var(--transition-normal);
+            z-index: 1;
+        }
+
+        .role-pill-container.counselor-mode .role-pill-slider {
+            transform: translateX(100%);
+            background: linear-gradient(135deg, var(--coral), #C23714);
+            box-shadow: 0 4px 14px rgba(233, 75, 36, 0.35);
+        }
+
+        .role-tab {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.25s ease;
+        }
+
+        .role-tab input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .role-tab svg {
+            width: 17px;
+            height: 17px;
+            stroke-width: 2.2;
+            transition: transform 0.2s ease;
+        }
+
+        .role-tab.active {
+            color: #FFF9E8;
+        }
+
+        .role-tab.active svg {
+            transform: scale(1.1);
+        }
+
+        /* =====================================================
+           5. AUTHENTICATION FORM & FLOATING LABELS
+        ===================================================== */
+        /* Google Auth Button */
+        .btn-google {
+            width: 100%;
+            height: 48px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--card-bg);
+            color: var(--text-dark);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-subtle);
+            margin-bottom: 20px;
+        }
+
+        .btn-google:hover {
+            border-color: var(--orange);
+            background: var(--card-subtle);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-google:active {
+            transform: translateY(0);
+        }
+
+        .google-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        /* Divider */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 24px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-divider span {
+            padding: 0 14px;
+        }
+
+        /* Flashed Messages Alert */
+        .alert-box {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            font-size: 13.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #FEF2F2;
+            color: #DC2626;
+            border: 1px solid #FECACA;
+            animation: shake 0.4s ease;
+        }
+
+        [data-theme="dark"] .alert-box {
+            background: rgba(220, 38, 38, 0.15);
+            border-color: rgba(220, 38, 38, 0.3);
+            color: #FCA5A5;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+
+        /* Form Fields & Floating Labels */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-input {
+            width: 100%;
+            height: 54px;
+            padding: 22px 48px 6px 44px;
+            background: var(--card-subtle);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 14.5px;
+            font-weight: 500;
+            color: var(--text-dark);
+            outline: none;
+            transition: all var(--transition-fast);
+        }
+
+        .custom-input:focus {
+            border-color: var(--orange);
+            background: var(--card-bg);
+            box-shadow: 0 0 0 4px rgba(255, 155, 26, 0.15);
+        }
+
+        .input-icon-left {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: color var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-icon-left svg {
+            width: 19px;
+            height: 19px;
+            stroke-width: 2;
+            fill: none;
+            stroke: currentColor;
+        }
+
+        .custom-input:focus ~ .input-icon-left {
+            color: var(--orange);
+        }
+
+        /* Floating Label Logic */
+        .floating-label {
+            position: absolute;
+            left: 44px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-input:focus ~ .floating-label,
+        .custom-input:not(:placeholder-shown) ~ .floating-label {
+            top: 14px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--navy);
+        }
+
+        [data-theme="dark"] .custom-input:focus ~ .floating-label,
+        [data-theme="dark"] .custom-input:not(:placeholder-shown) ~ .floating-label {
+            color: var(--orange);
+        }
+
+        /* Password Show/Hide Toggle */
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--text-dark);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .password-toggle-btn svg {
+            width: 19px;
+            height: 19px;
+            stroke-width: 2;
+            fill: none;
+            stroke: currentColor;
+        }
+
+        /* Form Options (Remember Me & Forgot Password) */
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 4px 0 24px;
+        }
+
+        .remember-checkbox {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember-checkbox input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            accent-color: var(--orange);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .forgot-link:hover {
+            color: var(--coral);
+            text-decoration: underline;
+        }
+
+        [data-theme="dark"] .forgot-link {
+            color: var(--orange);
+        }
+
+        /* Primary Sign In Button */
+        .btn-submit {
+            width: 100%;
+            height: 52px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+            color: #FFF9E8;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(11, 52, 117, 0.3);
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .role-pill-container.counselor-mode ~ * .btn-submit,
+        .btn-submit.counselor-theme {
+            background: linear-gradient(135deg, var(--coral) 0%, #C23714 100%);
+            box-shadow: 0 8px 20px rgba(233, 75, 36, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(11, 52, 117, 0.4);
+            filter: brightness(1.05);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.5;
+            transition: transform var(--transition-fast);
+        }
+
+        .btn-submit:hover svg {
+            transform: translateX(4px);
+        }
+
+        /* Demo Auto-Fill Helpers */
+        .demo-pills-bar {
+            margin-top: 20px;
+            padding: 12px 14px;
+            background: var(--card-subtle);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .demo-pill-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .demo-pill-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .demo-pill-btn {
+            padding: 5px 10px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-dark);
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .demo-pill-btn:hover {
+            border-color: var(--orange);
+            color: var(--navy);
+            transform: scale(1.05);
+        }
+
+        /* =====================================================
+           6. BOTTOM CONTROLS & FOOTER
+        ===================================================== */
+        .auth-footer {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 420px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Dark Mode Switcher */
+        .theme-toggle-btn {
+            background: var(--card-subtle);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            color: var(--text-dark);
+            font-size: 12.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--orange);
+            transform: translateY(-1px);
+        }
+
+        .theme-toggle-btn svg {
+            width: 15px;
+            height: 15px;
+            stroke-width: 2;
+        }
+
+        /* Language Selector */
+        .language-dropdown-wrapper {
+            position: relative;
+        }
+
+        .language-select {
+            appearance: none;
+            background: var(--card-subtle);
+            border: 1px solid var(--border-color);
+            padding: 6px 28px 6px 12px;
+            border-radius: var(--radius-pill);
+            color: var(--text-dark);
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all var(--transition-fast);
+        }
+
+        .language-select:hover {
+            border-color: var(--orange);
+        }
+
+        .copyright-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 0.2px;
+        }
+
+        /* =====================================================
+           7. FORGOT PASSWORD MODAL
+        ===================================================== */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(7, 34, 78, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transform: scale(0.92);
+            transition: transform 0.3s var(--transition-bounce);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-backdrop.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-icon-badge {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: var(--bg-main);
+            color: var(--navy);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-icon-badge svg {
+            width: 26px;
+            height: 26px;
+            stroke-width: 2;
+            fill: none;
+            stroke: currentColor;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .btn-modal-close {
+            width: 100%;
+            height: 46px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--navy);
+            color: #FFF9E8;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .btn-modal-close:hover {
+            background: var(--navy-dark);
+        }
+
+        /* =====================================================
+           8. RESPONSIVE BREAKPOINTS
+        ===================================================== */
+        /* Tablet: 50/50 Split */
+        @media (max-width: 1024px) {
+            .hero-section {
+                flex: 0 0 50%;
+                padding: 40px 32px;
+            }
+            .auth-section {
+                flex: 0 0 50%;
+                padding: 40px 32px;
+            }
+            .institution-title-text {
+                font-size: 20px;
+            }
+            .hero-logo-img {
+                max-height: 62px;
+            }
+            .portal-subtitle-text {
+                font-size: 14px;
+            }
+        }
+
+        /* Mobile: Stack Vertically */
+        @media (max-width: 768px) {
+            .viewport-wrapper {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+            .hero-section {
+                flex: 0 0 auto;
+                padding: 32px 20px 28px;
+                min-height: 260px;
+            }
+            .floating-cards-row, .hero-footer-note {
+                display: none;
+            }
+            .hero-logo-card {
+                padding: 14px 28px;
+                margin-bottom: 16px;
+            }
+            .hero-logo-img {
+                max-height: 52px;
+            }
+            .institution-title-text {
+                font-size: 17px;
+            }
+            .presents-script-text {
+                font-size: 13px;
+                margin-bottom: 16px;
+            }
+            .spark-program-title {
+                font-size: 20px;
+            }
+            .portal-subtitle-text {
+                font-size: 13px;
+            }
+            .auth-section {
+                flex: 1 0 auto;
+                padding: 28px 20px 24px;
+                border-radius: 24px 24px 0 0;
+                margin-top: -20px;
+                z-index: 10;
+            }
+        }
+
+        /* =====================================================
+           9. ACCESSIBILITY & PREFERS-REDUCED-MOTION
+        ===================================================== */
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .hero-bg-photo {
+                animation: none !important;
+                transform: scale(1) !important;
+            }
+            .spark-program-title {
+                animation: none !important;
+            }
+            .ambient-flare {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="viewport-wrapper">
+
+        <!-- ===================================================
+             LEFT SECTION — THE NEST SCHOOL REAL STUDENTS (60% Width)
+        ==================================================== -->
+        <section class="hero-section" aria-label="THE NEST SCHOOL Overview">
+            
+            <!-- Real Student Photo with Ken Burns Slow Zoom -->
+            <div class="hero-bg-photo"></div>
+            
+            <!-- Dashboard-Matched Navy & Gold Gradient Overlay -->
+            <div class="hero-overlay"></div>
+
+            <!-- Ambient Light Flares -->
+            <div class="ambient-flare flare-1"></div>
+            <div class="ambient-flare flare-2"></div>
+
+            <!-- Header & Presentation Branding -->
+            <div class="hero-content">
+                
+                <!-- 1. Meenakshi Sundararajan School of Management (20–25px) -->
+                <h2 class="institution-title-text">
+                    Meenakshi Sundararajan School of Management
+                </h2>
+
+                <!-- 2. Proudly Presents -->
+                <div class="presents-script-text">
+                    Proudly Presents
+                </div>
+
+                <!-- 3. LARGE VISUALLY DOMINANT LOGO CARD — THE NEST SCHOOL -->
+                <div class="hero-logo-card">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="THE NEST SCHOOL" class="hero-logo-img">
+                </div>
+
+                <!-- 4. THE NEST SCHOOL SPARK PROGRAM — Sparkling Shimmer Animation -->
+                <h1 class="spark-program-title">
+                    THE NEST SCHOOL SPARK PROGRAM
+                </h1>
+
+                <!-- Subtitle -->
+                <p class="portal-subtitle-text">
+                    Student Development & Guidance Portal
+                </p>
+
+                <!-- Floating Feature Badges over Student Photography -->
+                <div class="floating-cards-row">
+                    <div class="hero-feature-card">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Student Development</span>
+                    </div>
+                    <div class="hero-feature-card">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                        <span>College Readiness</span>
+                    </div>
+                    <div class="hero-feature-card">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <span>Counselor Guidance</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Left Footer Note -->
+            <div class="hero-footer-note">
+                © 2026 THE NEST SCHOOL • Official Academic Portal
+            </div>
+        </section>
+
+
+        <!-- ===================================================
+             RIGHT SECTION — THE NEST SCHOOL LOGIN PANEL (40% Width)
+        ==================================================== -->
+        <section class="auth-section" id="authSection" aria-label="Sign In Interface">
+            
+            <div class="auth-container">
+                
+                <!-- Branding Header — THE NEST SCHOOL Primary -->
+                <div class="auth-header">
+                    <!-- Prominent Logo -->
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="THE NEST SCHOOL" class="auth-nest-logo">
+                    
+                    <!-- Secondary SPARK Subtag -->
+                    <div class="auth-spark-subtag">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                        <span>SPARK Program</span>
+                    </div>
+
+                    <h2 class="auth-title">Welcome back</h2>
+                    <p class="auth-subtitle" id="authSubtitle">Sign in to access your portal</p>
+                </div>
+
+                <!-- FLASK FLASH MESSAGES -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert-box" role="alert">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- ROLE SELECTOR PILL TOGGLE -->
+                <div class="role-toggle-wrapper">
+                    <div class="role-pill-container" id="roleContainer">
+                        <div class="role-pill-slider"></div>
+                        
+                        <!-- Student Radio Option -->
+                        <label class="role-tab active" id="tabStudent" for="roleStudent">
+                            <input type="radio" id="roleStudent" name="role_toggle" value="student" checked onchange="switchRole('student')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                            <span>Student</span>
+                        </label>
+                        
+                        <!-- Counselor Radio Option -->
+                        <label class="role-tab" id="tabCounselor" for="roleCounselor">
+                            <input type="radio" id="roleCounselor" name="role_toggle" value="counselor" onchange="switchRole('counselor')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <span>Counselor</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- GOOGLE AUTHENTICATION BUTTON -->
+                <button type="button" class="btn-google" onclick="handleGoogleSignIn()">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    <span>Continue with Google</span>
+                </button>
+
+                <div class="auth-divider">
+                    <span>or sign in with email</span>
+                </div>
+
+                <!-- MAIN LOGIN FORM -->
+                <form action="{{ url_for('login') }}" method="POST" id="loginForm">
+                    
+                    <!-- Hidden role field synced with role selector for backend -->
+                    <input type="hidden" id="formRole" name="role" value="student">
+
+                    <!-- Username / Email Field -->
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <input type="text" id="username" name="username" class="custom-input" placeholder=" " required autocomplete="username">
+                            <label for="username" class="floating-label">Email or Username</label>
+                            <div class="input-icon-left">
+                                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" class="custom-input" placeholder=" " required autocomplete="current-password">
+                            <label for="password" class="floating-label">Password</label>
+                            <div class="input-icon-left">
+                                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            </div>
+                            <button type="button" class="password-toggle-btn" id="passwordToggleBtn" aria-label="Toggle password visibility">
+                                <svg id="eyeSvg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Form Options -->
+                    <div class="form-options">
+                        <label class="remember-checkbox">
+                            <input type="checkbox" name="remember" checked>
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-link" onclick="openForgotModal(event)">Forgot password?</a>
+                    </div>
+
+                    <!-- Primary Sign In Submit Button -->
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span id="submitBtnText">Sign In</span>
+                        <svg id="submitBtnSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </button>
+                </form>
+
+                <!-- Quick Demo Auto-Fill Helpers -->
+                <div class="demo-pills-bar">
+                    <span class="demo-pill-title">⚡ Quick Demo:</span>
+                    <div class="demo-pill-group">
+                        <button type="button" class="demo-pill-btn" onclick="quickFill('student')">🎓 Student</button>
+                        <button type="button" class="demo-pill-btn" onclick="quickFill('counselor')">🛡️ Counselor</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Controls & Footer -->
+            <footer class="auth-footer">
+                <div class="controls-row">
+                    <!-- Dark Mode Toggle -->
+                    <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()">
+                        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <span id="themeLabel">Dark Mode</span>
+                    </button>
+
+                    <!-- Language Selector Dropdown -->
+                    <div class="language-dropdown-wrapper">
+                        <select class="language-select" id="languageSelect" onchange="switchLanguage(this.value)">
+                            <option value="en" selected>English ▾</option>
+                            <option value="es">Español ▾</option>
+                            <option value="fr">Français ▾</option>
+                            <option value="de">Deutsch ▾</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="copyright-text">
+                    © 2026 THE NEST SCHOOL • SPARK Student Development Platform
+                </div>
+            </footer>
+
+        </section>
+
+    </div>
+
+    <!-- ===================================================
+         FORGOT PASSWORD ASSISTANCE MODAL
+    ==================================================== -->
+    <div class="modal-backdrop" id="forgotModal">
+        <div class="modal-card">
+            <div class="modal-icon-badge">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <h3 class="modal-title">Password Assistance</h3>
+            <p class="modal-desc">
+                For security reasons, password resets are managed directly by your lead guidance counselor or THE NEST SCHOOL administration.
+                <br><br>
+                Please contact <strong>support@thenestschool.edu</strong> or speak with your counselor.
+            </p>
+            <button type="button" class="btn-modal-close" onclick="closeForgotModal()">Return to Sign In</button>
+        </div>
+    </div>
+
+    <!-- ===================================================
+         MICRO-INTERACTION JAVASCRIPT
+    ==================================================== -->
+    <script>
+        // Role Switcher Handler
+        function switchRole(role) {
+            const roleContainer = document.getElementById('roleContainer');
+            const tabStudent = document.getElementById('tabStudent');
+            const tabCounselor = document.getElementById('tabCounselor');
+            const formRole = document.getElementById('formRole');
+            const authSubtitle = document.getElementById('authSubtitle');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (role === 'counselor') {
+                roleContainer.classList.add('counselor-mode');
+                tabStudent.classList.remove('active');
+                tabCounselor.classList.add('active');
+                formRole.value = 'counselor';
+                authSubtitle.textContent = 'Sign in to access staff management and student advisement';
+                submitBtn.classList.add('counselor-theme');
+            } else {
+                roleContainer.classList.remove('counselor-mode');
+                tabCounselor.classList.remove('active');
+                tabStudent.classList.add('active');
+                formRole.value = 'student';
+                authSubtitle.textContent = 'Sign in to access your student development portal';
+                submitBtn.classList.remove('counselor-theme');
+            }
+        }
+
+        // Quick Fill Helper
+        function quickFill(role) {
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            if (role === 'student') {
+                document.getElementById('roleStudent').checked = true;
+                switchRole('student');
+                usernameInput.value = 'student';
+                passwordInput.value = 'student123';
+            } else {
+                document.getElementById('roleCounselor').checked = true;
+                switchRole('counselor');
+                usernameInput.value = 'counselor';
+                passwordInput.value = 'counselor123';
+            }
+
+            // Dispatch input event for floating labels
+            usernameInput.dispatchEvent(new Event('input'));
+            passwordInput.dispatchEvent(new Event('input'));
+        }
+
+        // Password Show/Hide Toggle with Eye SVG
+        const passwordInput = document.getElementById('password');
+        const passwordToggleBtn = document.getElementById('passwordToggleBtn');
+        const eyeSvg = document.getElementById('eyeSvg');
+
+        const eyeOpenPath = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
+        const eyeOffPath = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
+
+        passwordToggleBtn.addEventListener('click', function () {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeSvg.innerHTML = eyeOffPath;
+            } else {
+                passwordInput.type = 'password';
+                eyeSvg.innerHTML = eyeOpenPath;
+            }
+        });
+
+        // Dark Mode Toggle
+        let isDarkMode = false;
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeLabel = document.getElementById('themeLabel');
+
+            if (isDarkMode) {
+                html.setAttribute('data-theme', 'dark');
+                themeLabel.textContent = 'Light Mode';
+                themeIcon.innerHTML = `<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
+            } else {
+                html.setAttribute('data-theme', 'light');
+                themeLabel.textContent = 'Dark Mode';
+                themeIcon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+            }
+        }
+
+        // Language Switcher Demo Toast
+        function switchLanguage(lang) {
+            console.log('Switched language to: ' + lang);
+        }
+
+        // Google Sign In Mock Action
+        function handleGoogleSignIn() {
+            quickFill('student');
+            document.getElementById('loginForm').submit();
+        }
+
+        // Modal Controls
+        function openForgotModal(e) {
+            e.preventDefault();
+            document.getElementById('forgotModal').classList.add('active');
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.remove('active');
+        }
+
+        document.getElementById('forgotModal').addEventListener('click', function (e) {
+            if (e.target === this) closeForgotModal();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeForgotModal();
+        });
+
+        // Submit Button Loading Spinner Micro-Interaction
+        document.getElementById('loginForm').addEventListener('submit', function () {
+            const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('submitBtnText');
+            const btnSvg = document.getElementById('submitBtnSvg');
+
+            btn.disabled = true;
+            btnText.textContent = 'Signing in...';
+            btnSvg.outerHTML = `
+                <svg class="spinner" width="18" height="18" viewBox="0 0 24 24" style="animation: spin 0.8s linear infinite;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" style="opacity: 0.25;"></circle>
+                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            `;
+        });
+
+        // Dynamic Spinner Animation Style
+        const spinnerStyle = document.createElement('style');
+        spinnerStyle.textContent = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
+        document.head.appendChild(spinnerStyle);
+    </script>
+</body>
+
+</html>

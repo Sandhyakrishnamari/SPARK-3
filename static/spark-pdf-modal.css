@@ -1,0 +1,488 @@
+/* =========================================================
+   SPARK INTERACTIVE PDF EXPORT MODAL STYLES
+   ========================================================= */
+
+.spark-pdf-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(11, 24, 48, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease;
+}
+
+.spark-pdf-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.spark-pdf-modal {
+    background: #FFF9E8;
+    border: 2px solid #E8C978;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 860px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 60px rgba(11, 52, 117, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    transform: scale(0.92) translateY(20px);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+}
+
+.spark-pdf-backdrop.active .spark-pdf-modal {
+    transform: scale(1) translateY(0);
+}
+
+/* Modal Header */
+.spark-pdf-header {
+    background: linear-gradient(135deg, #0B3475 0%, #17345F 100%);
+    color: white;
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #FF9B1A;
+    position: relative;
+}
+
+.spark-pdf-header-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.spark-pdf-header-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #FF9B1A, #E94B24);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 6px 18px rgba(255, 155, 26, 0.35);
+}
+
+.spark-pdf-header h2 {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 0;
+    color: #FFF9E8;
+    letter-spacing: -0.3px;
+}
+
+.spark-pdf-header p {
+    font-size: 12px;
+    margin: 3px 0 0;
+    color: #E8C978;
+    font-weight: 500;
+}
+
+.spark-pdf-close {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.spark-pdf-close:hover {
+    background: #E94B24;
+    border-color: #E94B24;
+    transform: rotate(90deg);
+}
+
+/* Modal Body */
+.spark-pdf-body {
+    padding: 26px 28px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 26px;
+}
+
+@media (max-width: 768px) {
+    .spark-pdf-body {
+        grid-template-columns: 1fr;
+    }
+}
+
+.spark-pdf-section-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #536B8E;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Theme Selector Cards */
+.spark-pdf-themes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.spark-pdf-theme-card {
+    border: 2px solid #E8C978;
+    background: white;
+    border-radius: 14px;
+    padding: 12px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.spark-pdf-theme-card:hover {
+    border-color: #FF9B1A;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 155, 26, 0.15);
+}
+
+.spark-pdf-theme-card.selected {
+    border-color: #0B3475;
+    background: #FFF3D6;
+    box-shadow: 0 0 0 2px #0B3475;
+}
+
+.spark-pdf-theme-colors {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.spark-pdf-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.spark-pdf-theme-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0B3475;
+}
+
+/* Feature Toggles */
+.spark-pdf-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.spark-pdf-toggle-item {
+    background: white;
+    border: 1px solid #E8C978;
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.spark-pdf-toggle-item:hover {
+    border-color: #FF9B1A;
+    background: #FFFDF8;
+}
+
+.spark-pdf-toggle-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.spark-pdf-toggle-icon {
+    font-size: 18px;
+}
+
+.spark-pdf-toggle-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0B3475;
+}
+
+.spark-pdf-toggle-desc {
+    font-size: 10px;
+    color: #536B8E;
+}
+
+.spark-pdf-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: #CBD5E1;
+    border-radius: 20px;
+    transition: background 0.3s ease;
+}
+
+.spark-pdf-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.spark-pdf-toggle-item.active .spark-pdf-switch {
+    background: #FF9B1A;
+}
+
+.spark-pdf-toggle-item.active .spark-pdf-switch::after {
+    transform: translateX(20px);
+}
+
+/* Sections Chooser */
+.spark-pdf-sections-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.spark-pdf-chip {
+    background: white;
+    border: 1px solid #E8C978;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #0B3475;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.spark-pdf-chip:hover {
+    border-color: #FF9B1A;
+    background: #FFFDF8;
+}
+
+.spark-pdf-chip.checked {
+    background: #0B3475;
+    color: white;
+    border-color: #0B3475;
+}
+
+.spark-pdf-chip input {
+    display: none;
+}
+
+/* Right Panel - Live Preview Card & Progress */
+.spark-pdf-preview-card {
+    background: white;
+    border: 2px solid #E8C978;
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.spark-pdf-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed #E8C978;
+    margin-bottom: 16px;
+}
+
+.spark-pdf-preview-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0B3475;
+}
+
+.spark-pdf-badge {
+    background: #FF9B1A;
+    color: #0B3475;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 20px;
+}
+
+.spark-pdf-preview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.spark-pdf-preview-item {
+    font-size: 11px;
+    color: #536B8E;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.spark-pdf-preview-item strong {
+    color: #0B3475;
+}
+
+.spark-pdf-progress-container {
+    margin-top: auto;
+    background: #FFF9E8;
+    border: 1px solid #E8C978;
+    border-radius: 14px;
+    padding: 14px;
+}
+
+.spark-pdf-progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0B3475;
+    margin-bottom: 8px;
+}
+
+.spark-pdf-progress-bar {
+    height: 8px;
+    background: rgba(11, 52, 117, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.spark-pdf-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #FF9B1A, #E94B24);
+    border-radius: inherit;
+    transition: width 0.3s ease;
+}
+
+/* Footer Buttons */
+.spark-pdf-footer {
+    background: #FFF3D6;
+    border-top: 1px solid #E8C978;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.spark-pdf-btn {
+    border: none;
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+}
+
+.spark-pdf-btn-secondary {
+    background: white;
+    border: 1px solid #E8C978;
+    color: #0B3475;
+}
+
+.spark-pdf-btn-secondary:hover {
+    background: #FFF9E8;
+    border-color: #FF9B1A;
+    transform: translateY(-1px);
+}
+
+.spark-pdf-btn-primary {
+    background: linear-gradient(135deg, #0B3475, #17345F);
+    color: white;
+    box-shadow: 0 6px 18px rgba(11, 52, 117, 0.25);
+}
+
+.spark-pdf-btn-primary:hover {
+    background: linear-gradient(135deg, #FF9B1A, #E94B24);
+    color: #0B3475;
+    box-shadow: 0 8px 22px rgba(255, 155, 26, 0.35);
+    transform: translateY(-2px);
+}
+
+/* Inline Live Preview Modal */
+.spark-pdf-viewer-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10005;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.spark-pdf-viewer-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.spark-pdf-viewer-bar {
+    height: 60px;
+    background: #0B3475;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-bottom: 2px solid #FF9B1A;
+}
+
+.spark-pdf-viewer-iframe {
+    width: 100%;
+    height: calc(100vh - 60px);
+    border: none;
+    background: #525659;
+}
+
+/* Button pulse micro-animation */
+@keyframes sparkPulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 155, 26, 0.5); }
+    70% { box-shadow: 0 0 0 14px rgba(255, 155, 26, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 155, 26, 0); }
+}
+
+.spark-pdf-pulse {
+    animation: sparkPulse 2s infinite;
+}

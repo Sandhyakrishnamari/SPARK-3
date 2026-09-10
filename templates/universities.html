@@ -1,0 +1,187 @@
+{% extends "student/base.html" %}
+{% set active_page = 'universities' %}
+
+{% block title %}My Colleges{% endblock %}
+{% block breadcrumb %}My Colleges{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">My Shortlisted Colleges</h1>
+    <p class="page-subtitle">Build and manage your target university shortlist dynamically connected to prerequisite requirements.</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">My Universities</div>
+            <div class="card-subtitle">Your selected target universities and application progress</div>
+        </div>
+        <button class="add-btn btn-primary" onclick="showUniversityForm()">+ Add University</button>
+    </div>
+
+    {% for item in universities %}
+    <div style="padding:16px 0;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+            <strong style="font-size:15px;color:var(--navy);">{{ item.university_name }}</strong>
+            <span style="font-weight:600;color:var(--orange);"> — {{ item.degree }}</span>
+            <span style="color:var(--text-muted);font-size:13px;"> · {{ item.country }} · 
+                <span class="badge badge-info" style="font-size:11px;">{{ item.status }}</span>
+            </span>
+            {% if item.deadline %}
+            <span style="color:var(--coral);font-weight:700;font-size:12px;margin-left:10px;">📅 Deadline: {{ item.deadline }}</span>
+            {% endif %}
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <a href="{{ url_for('prerequisites') }}" class="btn btn-outline" style="padding:6px 12px;font-size:12px;text-decoration:none;">View Prerequisites →</a>
+            <button onclick="deleteUniversity({{ item.id }})" class="btn" style="background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;padding:6px 12px;font-size:12px;">Remove</button>
+        </div>
+    </div>
+    {% else %}
+    <div style="text-align:center;color:var(--text-muted);padding:40px;">
+        <p>No universities added yet. Click "+ Add University" to choose from 50 UK &amp; US top universities.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block modals %}
+<div id="universityModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(7,29,73,0.5);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div class="card" style="width:90%;max-width:520px;box-shadow:var(--shadow-md);margin-bottom:0;">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Add Target University</div>
+                <div class="card-subtitle">Select from top master universities to seed prerequisites</div>
+            </div>
+            <button type="button" onclick="closeUniversityForm()" style="border:none;background:none;font-weight:800;font-size:18px;cursor:pointer;color:var(--text-muted);">×</button>
+        </div>
+        
+        <form id="universityForm" style="display:flex;flex-direction:column;gap:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Select University from Master List</label>
+                <select class="form-select" id="university_select" onchange="onSelectUni(this)" required>
+                    <option value="">-- Choose University (25 UK &amp; 25 US) --</option>
+                    <optgroup label="UK Universities">
+                        {% for m in master_universities if m.country == 'United Kingdom' %}
+                        <option value="{{ m.name }}" data-country="{{ m.country }}" data-courses="{{ m.best_fit_courses }}" data-deadline="{{ m.application_deadline }}">{{ m.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="US Universities">
+                        {% for m in master_universities if m.country == 'United States' %}
+                        <option value="{{ m.name }}" data-country="{{ m.country }}" data-courses="{{ m.best_fit_courses }}" data-deadline="{{ m.application_deadline }}">{{ m.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+            
+            <input type="hidden" id="university_name">
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Country</label>
+                <input type="text" class="form-control" placeholder="Country" id="country" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Course / Degree</label>
+                <input type="text" class="form-control" placeholder="Course / Degree (e.g. Computer Science)" id="degree" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Application Category</label>
+                <select class="form-select" id="application_type" required>
+                    <option value="">Select Application Type</option>
+                    <option value="Early">Early Action / Early Decision</option>
+                    <option value="Regular">Regular Decision / UCAS</option>
+                    <option value="Match">Match College</option>
+                    <option value="Reach">Reach College</option>
+                    <option value="Safety">Safety College</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Application Deadline</label>
+                <input type="text" class="form-control" placeholder="Deadline (e.g. 15 Oct 2027, Jan 2028)" id="deadline" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Application Status</label>
+                <select class="form-select" id="status" required>
+                    <option value="Planning">Planning</option>
+                    <option value="Shortlisted">Shortlisted</option>
+                    <option value="Applied">Applied</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Deferred">Deferred</option>
+                </select>
+            </div>
+            
+            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;">
+                <button type="button" class="btn btn-secondary" onclick="closeUniversityForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save &amp; Seed Requirements</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showUniversityForm() {
+        document.getElementById('universityModal').style.display = 'flex';
+    }
+    
+    function closeUniversityForm() {
+        document.getElementById('universityModal').style.display = 'none';
+        document.getElementById('universityForm').reset();
+    }
+    
+    function onSelectUni(selectEl) {
+        const selectedOpt = selectEl.options[selectEl.selectedIndex];
+        if(!selectedOpt || !selectedOpt.value) return;
+        document.getElementById('university_name').value = selectedOpt.value;
+        document.getElementById('country').value = selectedOpt.getAttribute('data-country') || '';
+        document.getElementById('deadline').value = selectedOpt.getAttribute('data-deadline') || '';
+        const courses = selectedOpt.getAttribute('data-courses') || '';
+        if(courses && !document.getElementById('degree').value) {
+            document.getElementById('degree').value = courses.split(',')[0].trim();
+        }
+    }
+
+    function deleteUniversity(id) {
+        if(!confirm("Are you sure you want to remove this university and its prerequisite checklist?")) return;
+        fetch('/api/student/universities/delete/' + id, {
+            method: 'POST'
+        }).then(r => r.json()).then(resp => {
+            if(resp.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + resp.message);
+            }
+        }).catch(err => alert('Error deleting university'));
+    }
+    
+    document.getElementById('universityForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const uniName = document.getElementById('university_name').value || document.getElementById('university_select').value;
+        if(!uniName) {
+            alert('Please select a university');
+            return;
+        }
+        const data = {
+            university_name: uniName,
+            country: document.getElementById('country').value,
+            degree: document.getElementById('degree').value,
+            application_type: document.getElementById('application_type').value,
+            deadline: document.getElementById('deadline').value,
+            status: document.getElementById('status').value
+        };
+        
+        fetch('/api/student/universities', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(r => r.json()).then(resp => {
+            if(resp.success) {
+                alert('University added and prerequisite requirements seeded!');
+                closeUniversityForm();
+                location.reload();
+            } else {
+                alert('Error: ' + resp.message);
+            }
+        }).catch(err => alert('Error saving university'));
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,273 @@
+{% extends "student/base.html" %}
+{% set active_page = 'prerequisites' %}
+
+{% block title %}My Prerequisites{% endblock %}
+{% block breadcrumb %}My Prerequisites{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">🏛️ My College Prerequisites &amp; Country Guidelines</h1>
+    <p class="page-subtitle">Prerequisite checklists generated directly for your shortlisted universities in <strong>My Colleges</strong>. Track completion status live and sync automatically with your Counselor portal.</p>
+</div>
+
+<!-- COUNTRY CARDS SELECTION -->
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">🌍 Country Prerequisites &amp; Admissions Guidelines</div>
+            <div class="card-subtitle">Select a target destination to inspect country-level prerequisite criteria</div>
+        </div>
+    </div>
+
+    <div class="country-tabs">
+        <div class="country-tab active" id="card-usa" onclick="selectCountry('usa')">
+            <span class="country-flag" style="display:inline-flex;align-items:center;">
+                <svg width="22" height="16" viewBox="0 0 640 480" style="border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.25);">
+                    <rect width="640" height="480" fill="#bd3d44"/>
+                    <path fill="#fff" d="M0 36.9h640v36.9H0zm0 73.8h640v36.9H0zm0 73.9h640v36.9H0zm0 73.8h640v36.9H0zm0 73.9h640v36.9H0zm0 73.8h640v36.9H0z"/>
+                    <rect width="280" height="258.5" fill="#192f5d"/>
+                </svg>
+            </span>
+            <span>USA</span>
+        </div>
+        <div class="country-tab" id="card-uk" onclick="selectCountry('uk')">
+            <span class="country-flag" style="display:inline-flex;align-items:center;">
+                <svg width="22" height="16" viewBox="0 0 640 480" style="border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.25);">
+                    <rect width="640" height="480" fill="#012169"/>
+                    <path fill="#fff" d="m0 0 640 480M640 0 0 480" stroke="#fff" stroke-width="60"/>
+                    <path stroke="#c8102e" stroke-width="40" d="m0 0 640 480M640 0 0 480"/>
+                    <path fill="#fff" d="M320 0v480M0 240h640" stroke="#fff" stroke-width="100"/>
+                    <path stroke="#c8102e" stroke-width="60" d="M320 0v480M0 240h640"/>
+                </svg>
+            </span>
+            <span>UK</span>
+        </div>
+        <div class="country-tab" id="card-canada" onclick="selectCountry('canada')">
+            <span class="country-flag" style="display:inline-flex;align-items:center;">
+                <svg width="22" height="16" viewBox="0 0 640 480" style="border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.25);">
+                    <rect width="160" height="480" fill="#ff0000"/>
+                    <rect x="160" width="320" height="480" fill="#fff"/>
+                    <rect x="480" width="160" height="480" fill="#ff0000"/>
+                    <path fill="#ff0000" d="M320 100l20 60 60-20-30 50 50 30-60 10 10 60-50-40-50 40 10-60-60-10 50-30-30-50 60 20z"/>
+                </svg>
+            </span>
+            <span>Canada</span>
+        </div>
+        <div class="country-tab" id="card-india" onclick="selectCountry('india')">
+            <span class="country-flag" style="display:inline-flex;align-items:center;">
+                <svg width="22" height="16" viewBox="0 0 640 480" style="border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.25);">
+                    <rect width="640" height="160" fill="#f93"/>
+                    <rect y="160" width="640" height="160" fill="#fff"/>
+                    <rect y="320" width="640" height="160" fill="#128807"/>
+                    <circle cx="320" cy="240" r="50" fill="none" stroke="#000080" stroke-width="12"/>
+                </svg>
+            </span>
+            <span>India</span>
+        </div>
+    </div>
+
+    <div id="countryContentContainer" class="country-content-panel">
+        <!-- Rendered dynamically by JS on country select -->
+    </div>
+</div>
+
+<!-- MY SHORTLISTED COLLEGES PREREQUISITES -->
+<div class="card" id="myCollegesPrereqs">
+    <div class="card-header">
+        <div>
+            <div class="card-title">🎓 Prerequisites for Selected Universities</div>
+            <div class="card-subtitle">Requirements automatically generated for colleges saved in your <strong>My Colleges</strong> shortlist</div>
+        </div>
+        {% if unis_with_prereqs %}
+        <span class="badge badge-success" style="font-size:12px;padding:6px 14px;">
+            Overall Progress: {{ overall_progress }}% ({{ total_completed }} / {{ total_items }})
+        </span>
+        {% endif %}
+    </div>
+
+    {% if unis_with_prereqs %}
+    <div style="display:flex;flex-direction:column;gap:24px;">
+        {% for uni in unis_with_prereqs %}
+        <div style="background:#FAFCFF;border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-subtle);">
+            <!-- College Header -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border-color);flex-wrap:wrap;gap:12px;">
+                <div>
+                    <h3 style="font-size:18px;font-weight:800;color:var(--navy);">{{ uni.university_name }}</h3>
+                    <div style="font-size:12px;font-weight:700;color:var(--orange);margin-top:2px;">
+                        Program: {{ uni.degree or 'Bachelor Degree' }} · <span style="color:var(--text-muted);">{{ uni.country }}</span>
+                        {% if uni.deadline %} · 📅 Deadline: <strong style="color:var(--coral);">{{ uni.deadline }}</strong>{% endif %}
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:13px;font-weight:800;color:var(--navy);" id="uni-pct-{{ uni.id }}">
+                        {{ uni.completed_count }} / {{ uni.total_count }} ({{ uni.progress_pct }}% Complete)
+                    </div>
+                    <div style="width:160px;height:8px;background:#E2E8F0;border-radius:10px;margin-top:6px;overflow:hidden;margin-left:auto;">
+                        <div id="uni-bar-{{ uni.id }}" style="height:100%;width:{{ uni.progress_pct }}%;background:linear-gradient(90deg, var(--orange), var(--coral));border-radius:10px;transition:width 0.4s ease;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Master Requirements Pill Grid -->
+            {% if uni.master %}
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:12px;background:#F8FAFC;padding:14px;border-radius:var(--radius-md);margin-bottom:18px;font-size:12px;color:var(--navy);border:1px solid var(--border-color);">
+                <div><strong>Target GPA / Marks:</strong><br><span style="color:var(--text-muted);">{{ uni.master.academic_requirement }}</span></div>
+                <div><strong>Key Subjects:</strong><br><span style="color:var(--text-muted);">{{ uni.master.key_subjects }}</span></div>
+                <div><strong>Required Tests:</strong><br><span style="color:var(--text-muted);">{{ uni.master.tests }}</span></div>
+                <div><strong>Target Band:</strong><br><span style="color:var(--text-muted);">{{ uni.master.competitive_target }}</span></div>
+            </div>
+            {% endif %}
+
+            <!-- Interactive Checklist Items -->
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                {% for p in uni.prerequisites %}
+                <div id="prereq-row-{{ p.id }}" style="background:#ffffff;border:1px solid var(--border-color);border-radius:var(--radius-md);padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-weight:700;font-size:13.5px;color:var(--navy);">
+                            <input type="checkbox" id="chk-{{ p.id }}" {% if p.completed %}checked{% endif %} onchange="togglePrereq({{ p.id }}, this.checked, {{ uni.id }})" style="width:18px;height:18px;accent-color:var(--orange);">
+                            <span id="title-{{ p.id }}" style="{% if p.completed %}text-decoration:line-through;opacity:0.75;{% endif %}">{{ p.requirement_name }}</span>
+                        </label>
+                        <span class="badge {% if p.completed %}badge-success{% else %}badge-warning{% endif %}">
+                            {{ 'Completed' if p.completed else 'Pending' }}
+                        </span>
+                    </div>
+                    <div style="font-size:12px;color:var(--text-muted);padding-left:30px;line-height:1.5;">
+                        {{ p.description }}
+                    </div>
+                    <div style="padding-left:30px;margin-top:2px;">
+                        <input type="text" class="form-control" id="notes-{{ p.id }}" value="{{ p.notes or '' }}" placeholder="Add notes, target score, or completion details..." onblur="updatePrereqNotes({{ p.id }}, {{ uni.id }})" style="font-size:12px;">
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:40px;color:var(--text-muted);background:#FAFBFD;border-radius:var(--radius-lg);border:1px dashed var(--border-color);">
+        <div style="font-size:36px;margin-bottom:10px;">🏛️</div>
+        <h3 style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:6px;">No Target Universities Shortlisted Yet</h3>
+        <p style="font-size:13px;max-width:540px;margin:0 auto 16px;">Add top universities (such as Oxford, Cambridge, MIT, Stanford, UofT, IIT) to your shortlist in <strong>My Colleges</strong> to automatically generate and track university-specific prerequisite checklists.</p>
+        <a href="{{ url_for('universities') }}" class="btn btn-primary" style="text-decoration:none;">+ Go to My Colleges to Add Universities</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePrereq(id, isCompleted, uniId) {
+        const notesVal = document.getElementById('notes-' + id) ? document.getElementById('notes-' + id).value : '';
+        const titleEl = document.getElementById('title-' + id);
+        if(titleEl) {
+            if(isCompleted) {
+                titleEl.style.textDecoration = 'line-through';
+                titleEl.style.opacity = '0.75';
+            } else {
+                titleEl.style.textDecoration = 'none';
+                titleEl.style.opacity = '1';
+            }
+        }
+        fetch('/api/student/prerequisites/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prerequisite_id: id, completed: isCompleted, notes: notesVal })
+        }).then(r => r.json()).then(resp => {
+            if(resp.success && resp.progress_pct !== undefined && uniId) {
+                const pctEl = document.getElementById('uni-pct-' + uniId);
+                if(pctEl) pctEl.innerText = resp.completed_count + ' / ' + resp.total_count + ' (' + resp.progress_pct + '% Complete)';
+                const barEl = document.getElementById('uni-bar-' + uniId);
+                if(barEl) barEl.style.width = resp.progress_pct + '%';
+            }
+        });
+    }
+
+    function updatePrereqNotes(id, uniId) {
+        const isCompleted = document.getElementById('chk-' + id) ? document.getElementById('chk-' + id).checked : false;
+        const notesVal = document.getElementById('notes-' + id) ? document.getElementById('notes-' + id).value : '';
+        fetch('/api/student/prerequisites/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prerequisite_id: id, completed: isCompleted, notes: notesVal })
+        });
+    }
+
+    const countryData = {
+        usa: {
+            flag: `<svg width="24" height="18" viewBox="0 0 640 480" style="border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.25);vertical-align:middle;"><rect width="640" height="480" fill="#bd3d44"/><path fill="#fff" d="M0 36.9h640v36.9H0zm0 73.8h640v36.9H0zm0 73.9h640v36.9H0zm0 73.8h640v36.9H0zm0 73.9h640v36.9H0zm0 73.8h640v36.9H0z"/><rect width="280" height="258.5" fill="#192f5d"/></svg>`,
+            fullName: "United States",
+            categories: [
+                { title: "Academic Performance", desc: "GPA 3.8+ & rigorous AP/IB subject preparation" },
+                { title: "SAT / ACT Testing", desc: "SAT (1450+) or ACT (32+) strategy" },
+                { title: "English Proficiency", desc: "IELTS (7.5+), TOEFL (100+), or Duolingo waiver" },
+                { title: "Extracurricular Activities", desc: "10 Common App activity slots showing depth & leadership" },
+                { title: "Essays & Statements", desc: "Common App Main Essay + Supplemental essays" },
+                { title: "Recommendations", desc: "2 Core academic teacher LORs + Counselor letter" }
+            ]
+        },
+        uk: {
+            flag: `<svg width="24" height="18" viewBox="0 0 640 480" style="border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.25);vertical-align:middle;"><rect width="640" height="480" fill="#012169"/><path fill="#fff" d="m0 0 640 480M640 0 0 480" stroke="#fff" stroke-width="60"/><path stroke="#c8102e" stroke-width="40" d="m0 0 640 480M640 0 0 480"/><path fill="#fff" d="M320 0v480M0 240h640" stroke="#fff" stroke-width="100"/><path stroke="#c8102e" stroke-width="60" d="M320 0v480M0 240h640"/></svg>`,
+            fullName: "United Kingdom",
+            categories: [
+                { title: "Academic Specialization", desc: "A*AA - AAA / IB 38-42 predicted grades" },
+                { title: "Course Prerequisites", desc: "Specific A-Level subjects (Maths, Physics, Chemistry)" },
+                { title: "Admissions Exams", desc: "UCAT, LNAT, STEP, ESAT, or TMUA entrance test" },
+                { title: "UCAS Personal Statement", desc: "4,000 character academic statement (80% super-curricular)" },
+                { title: "Academic Reference", desc: "1 Detailed subject teacher reference" }
+            ]
+        },
+        canada: {
+            flag: `<svg width="24" height="18" viewBox="0 0 640 480" style="border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.25);vertical-align:middle;"><rect width="160" height="480" fill="#ff0000"/><rect x="160" width="320" height="480" fill="#fff"/><rect x="480" width="160" height="480" fill="#ff0000"/><path fill="#ff0000" d="M320 100l20 60 60-20-30 50 50 30-60 10 10 60-50-40-50 40 10-60-60-10 50-30-30-50 60 20z"/></svg>`,
+            fullName: "Canada",
+            categories: [
+                { title: "Transcript Average", desc: "85-93%+ overall average across core Grade 11 & 12 subjects" },
+                { title: "Program Prerequisites", desc: "Grade 12 Calculus, Physics, Chemistry, English 12" },
+                { title: "English Language Proof", desc: "IELTS Academic 6.5+ or TOEFL 90+" },
+                { title: "Supplemental Applications", desc: "Video responses and essays for UBC, Toronto Rotman/Eng" }
+            ]
+        },
+        india: {
+            flag: `<svg width="24" height="18" viewBox="0 0 640 480" style="border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.25);vertical-align:middle;"><rect width="640" height="160" fill="#f93"/><rect y="160" width="640" height="160" fill="#fff"/><rect y="320" width="640" height="160" fill="#128807"/><circle cx="320" cy="240" r="50" fill="none" stroke="#000080" stroke-width="12"/></svg>`,
+            fullName: "India",
+            categories: [
+                { title: "Board Examinations", desc: "90%+ aggregate in CBSE / ISC / IB Class 10 & 12 Board exams" },
+                { title: "Entrance Examinations", desc: "JEE Main, JEE Advanced, NEET, CUET, IPMAT, CLAT" },
+                { title: "Stream Eligibility", desc: "PCM / PCB stream percentage cutoffs" },
+                { title: "Documentation", desc: "Transfer Certificate, Migration, Category certificates" }
+            ]
+        }
+    };
+
+    function selectCountry(countryCode) {
+        document.querySelectorAll('.country-tab').forEach(tab => tab.classList.remove('active'));
+        const activeTab = document.getElementById('card-' + countryCode);
+        if(activeTab) activeTab.classList.add('active');
+
+        const container = document.getElementById('countryContentContainer');
+        if(!container) return;
+
+        const data = countryData[countryCode] || countryData.usa;
+        const categoriesHTML = data.categories.map(c => `
+            <div style="background:#ffffff;border:1px solid var(--border-color);border-radius:var(--radius-md);padding:14px;">
+                <div style="font-size:13px;font-weight:800;color:var(--navy);">${c.title}</div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">${c.desc}</div>
+            </div>
+        `).join('');
+
+        container.innerHTML = `
+            <div style="background:#FAFCFF;border:1px solid var(--border-color);border-radius:var(--radius-md);padding:20px;margin-top:16px;" class="content-fade-in">
+                <div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                    <span>${data.flag}</span> <span>${data.fullName} Prerequisites &amp; Entry Guidelines</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:12px;">
+                    ${categoriesHTML}
+                </div>
+            </div>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        selectCountry('usa');
+    });
+</script>
+{% endblock %}

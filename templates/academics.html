@@ -1,0 +1,111 @@
+{% extends "student/base.html" %}
+{% set active_page = 'academics' %}
+
+{% block title %}My Academics &amp; Tests{% endblock %}
+{% block breadcrumb %}My Academics &amp; Tests{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">My Academics &amp; Tests</h1>
+    <p class="page-subtitle">Track your academic performance, term grades, and standardized test scores.</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Academic Records</div>
+            <div class="card-subtitle">Your grades and internal assessment scores</div>
+        </div>
+        <button class="add-btn btn-primary" onclick="showAcademicForm()">+ Add Academic Record</button>
+    </div>
+
+    {% for item in academics %}
+    <div style="padding:16px 0;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+            <strong style="font-size:15px;color:var(--navy);">{{ item.subject }}</strong>
+            <span style="font-weight:600;color:var(--orange);"> — {{ item.marks }}%</span>
+            {% if item.grade %}<span style="font-weight:700;color:var(--navy);"> (Grade: {{ item.grade }})</span>{% endif %}
+            <span style="color:var(--text-muted);font-size:12px;"> · {{ item.exam_name }}</span>
+        </div>
+        <span class="badge badge-success" style="font-size:11px;">Verified</span>
+    </div>
+    {% else %}
+    <div style="text-align:center;color:var(--text-muted);padding:40px;">
+        <p>No academic records added yet. Click "+ Add Academic Record" to log your grades.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block modals %}
+<div id="academicModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(7,29,73,0.5);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div class="card" style="width:90%;max-width:500px;box-shadow:var(--shadow-md);margin-bottom:0;">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Add Academic Record</div>
+                <div class="card-subtitle">Log your subject marks, grades, and term examination details</div>
+            </div>
+            <button type="button" onclick="closeAcademicForm()" style="border:none;background:none;font-weight:800;font-size:18px;cursor:pointer;color:var(--text-muted);">×</button>
+        </div>
+
+        <form id="academicForm" style="display:flex;flex-direction:column;gap:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="subject">Subject <span style="color:var(--coral);">*</span></label>
+                <input type="text" class="form-control" placeholder="e.g. Mathematics, Physics" id="subject" required>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="marks">Marks (%) <span style="color:var(--coral);">*</span></label>
+                    <input type="number" class="form-control" placeholder="e.g. 95" id="marks" min="0" max="100" required>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="grade">Grade Letter</label>
+                    <input type="text" class="form-control" placeholder="e.g. A+, A, B" id="grade">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="exam_name">Exam / Test Name <span style="color:var(--coral);">*</span></label>
+                <input type="text" class="form-control" placeholder="e.g. Midterm 2026 / Final Exam" id="exam_name" required>
+            </div>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;">
+                <button type="button" class="btn btn-secondary" onclick="closeAcademicForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Academic Record</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showAcademicForm() { document.getElementById('academicModal').style.display = 'flex'; }
+    function closeAcademicForm() { document.getElementById('academicModal').style.display = 'none'; document.getElementById('academicForm').reset(); }
+    
+    document.getElementById('academicForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = {
+            subject: document.getElementById('subject').value,
+            marks: parseFloat(document.getElementById('marks').value),
+            grade: document.getElementById('grade').value,
+            exam_name: document.getElementById('exam_name').value
+        };
+        
+        fetch('/api/student/academics', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(r => r.json()).then(resp => {
+            if(resp.success) {
+                alert('Academic record saved!');
+                closeAcademicForm();
+                location.reload();
+            } else {
+                alert('Error: ' + resp.message);
+            }
+        }).catch(err => alert('Error saving record'));
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "student/base.html" %}
+{% set active_page = 'essays' %}
+
+{% block title %}Staff Recommenders &amp; LOR{% endblock %}
+{% block breadcrumb %}My Essays &amp; Recommenders{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Staff Recommenders &amp; Letters of Recommendation</h1>
+    <p class="page-subtitle">Request Letters of Recommendation (LOR) from teachers and school staff.</p>
+</div>
+
+<div class="tabs-container" style="display:flex;gap:10px;margin-bottom:24px;">
+    <a href="{{ url_for('essays') }}" class="btn btn-outline">✍️ Essays &amp; Counselor Review</a>
+    <a href="{{ url_for('recommenders') }}" class="btn btn-primary">📜 Staff Recommenders &amp; LOR</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Letters of Recommendation (LOR)</div>
+            <div class="card-subtitle">Staff members will receive your request and upload official LOR documents directly</div>
+        </div>
+        <button class="add-btn btn-primary" onclick="showRecommenderModal()">+ Request LOR from Staff</button>
+    </div>
+
+    {% for item in records %}
+    <div class="rec-item" style="padding:20px;border:1px solid var(--border-color);border-radius:var(--radius-md);margin-bottom:16px;background:#FAFBFD;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+            <div>
+                <span class="badge badge-info">👨‍🏫 {{ item.teacher_name }}</span>
+                {% if item.subject %}<span style="font-size:12px;font-weight:600;color:var(--navy);margin-left:8px;">({{ item.subject }})</span>{% endif %}
+                {% if item.university %}<span style="font-size:11px;color:var(--text-muted);margin-left:10px;">Target: {{ item.university }}</span>{% endif %}
+            </div>
+            <span class="badge {% if item.lor_file_path %}badge-success{% else %}badge-warning{% endif %}">
+                {{ item.status or 'Requested' }}
+            </span>
+        </div>
+
+        {% if item.deadline %}<p style="font-size:12px;color:var(--text-muted);margin-top:4px;"><strong>Deadline:</strong> {{ item.deadline }}</p>{% endif %}
+
+        {% if item.brag_sheet %}
+        <div style="margin-top:12px;padding:12px 14px;background:#F8FAFC;border-radius:var(--radius-sm);border:1px solid var(--border-color);font-size:12px;color:var(--text-muted);">
+            <strong style="color:var(--navy);">Brag Sheet / Notes:</strong> {{ item.brag_sheet }}
+        </div>
+        {% endif %}
+
+        {% if item.lor_file_path %}
+        <div style="margin-top:14px;padding:14px 18px;border-radius:var(--radius-md);background:#F0FDF4;border:1px solid #86EFAC;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div>
+                <div style="font-size:13px;font-weight:700;color:#166534;">✅ Official LOR Sent by Staff</div>
+                <span style="font-size:11px;color:#15803D;">Document: {{ item.lor_file_name }}</span>
+            </div>
+            <a href="{{ url_for('download_lor', recommender_id=item.id) }}" class="btn btn-primary" style="background:#16a34a;font-size:12px;padding:8px 14px;text-decoration:none;">📥 Download Official LOR</a>
+        </div>
+        {% else %}
+        <div style="margin-top:12px;font-size:11.5px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+            <span>⏳</span> Request Sent to Staff — Awaiting LOR Document Upload
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div style="text-align:center;color:var(--text-muted);padding:50px 20px;">
+        <p style="font-size:15px;font-weight:700;margin-bottom:6px;color:var(--navy);">No LOR requests submitted yet</p>
+        <p style="font-size:12px;">Click "+ Request LOR from Staff" above to submit a request to your teacher or staff member.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block modals %}
+<div id="recommenderModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(7,29,73,0.5);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div class="card" style="width:90%;max-width:520px;box-shadow:var(--shadow-md);margin-bottom:0;">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Request Letter of Recommendation</div>
+                <div class="card-subtitle">Submit LOR details and notes for your teacher or school staff member</div>
+            </div>
+            <button type="button" onclick="closeRecommenderModal()" style="border:none;background:none;font-weight:800;font-size:18px;cursor:pointer;color:var(--text-muted);">×</button>
+        </div>
+
+        <form id="recommenderForm" style="display:flex;flex-direction:column;gap:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Staff / Teacher Name <span style="color:var(--coral);">*</span></label>
+                <input class="form-control" name="teacher_name" placeholder="e.g. Dr. Robert Chen" required>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label">Subject / Role</label>
+                    <input class="form-control" name="subject" placeholder="e.g. AP Chemistry">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label">Target University</label>
+                    <input class="form-control" name="university" placeholder="e.g. Harvard / All Colleges">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Application Deadline</label>
+                <input class="form-control" name="deadline" type="date">
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Brag Sheet / Notes for Recommender</label>
+                <textarea class="form-control" name="brag_sheet" rows="3" placeholder="Share your key achievements, class contributions, and personal qualities for staff..."></textarea>
+            </div>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;">
+                <button type="button" class="btn btn-secondary" onclick="closeRecommenderModal()">Cancel</button>
+                <button class="btn btn-primary" type="submit">Submit LOR Request to Staff</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showRecommenderModal() { document.getElementById('recommenderModal').style.display = 'flex'; }
+    function closeRecommenderModal() { document.getElementById('recommenderModal').style.display = 'none'; document.getElementById('recommenderForm').reset(); }
+
+    document.getElementById('recommenderForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(this));
+        try {
+            const res = await fetch('/api/student/planning/recommenders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert('LOR Request submitted to staff successfully!');
+                closeRecommenderModal();
+                location.reload();
+            } else {
+                alert(result.message || 'Failed to submit LOR request');
+            }
+        } catch (err) {
+            alert('Error submitting LOR request');
+        }
+    });
+</script>
+{% endblock %}

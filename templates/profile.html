@@ -1,0 +1,238 @@
+{% extends "student/base.html" %}
+{% set active_page = 'profile' %}
+
+{% block title %}My Profile{% endblock %}
+{% block breadcrumb %}My Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">My Profile</h1>
+    <p class="page-subtitle">Build your student profile and define your future direction.</p>
+</div>
+
+<!-- PERSONAL DETAILS -->
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Personal Details</div>
+            <div class="card-subtitle">Keep your basic information accurate.</div>
+        </div>
+    </div>
+    <div class="form-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:18px;">
+        <div class="form-group">
+            <label class="form-label">Full Name <span style="color:var(--coral);">*</span></label>
+            <input type="text" class="form-control" id="fullName" value="{{ student.full_name or '' }}" placeholder="Your full name" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Student ID</label>
+            <input type="text" class="form-control" id="studentId" value="{{ student.student_id or 'SPK-11001' }}" placeholder="SPK-11001" readonly style="background:#F1F5F9;">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Email <span style="color:var(--coral);">*</span></label>
+            <input type="email" class="form-control" id="email" value="{{ student.email or '' }}" placeholder="student@example.com" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" class="form-control" id="phone" value="{{ student.phone or '' }}" placeholder="+91 XXXXX XXXXX">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Date of Birth</label>
+            <input type="date" class="form-control" id="dateOfBirth" value="{{ student.date_of_birth or '' }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Department / Academic Track</label>
+            <input type="text" class="form-control" id="department" value="{{ student.department or '' }}" placeholder="e.g. Computer Science / Science">
+        </div>
+    </div>
+</div>
+
+<!-- SUBJECTS -->
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Subjects</div>
+            <div class="card-subtitle">Add the subjects you are currently studying.</div>
+        </div>
+    </div>
+    <div class="subject-input" style="display:flex;gap:12px;margin-bottom:12px;">
+        <input type="text" class="form-control" id="subjectInput" placeholder="e.g. Mathematics, Physics, Computer Science" style="flex:1;">
+        <button type="button" class="btn btn-primary" onclick="addSubject()">+ Add</button>
+    </div>
+    <div class="subject-tags" id="subjectTags" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"></div>
+    <div class="field-help" style="font-size:11px;color:var(--text-muted);">You can add multiple subjects.</div>
+</div>
+
+<!-- FUTURE GOALS -->
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Future Goals</div>
+            <div class="card-subtitle">Tell us where you want your academic journey to lead.</div>
+        </div>
+    </div>
+    <div class="form-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:18px;">
+        <div class="form-group">
+            <label class="form-label">Intended Major / Degree</label>
+            <input type="text" class="form-control" id="targetDegree" value="{{ student.target_degree or '' }}" placeholder="Computer Science / AI / Engineering">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Career Interest</label>
+            <input type="text" class="form-control" id="careerInterest" value="{{ student.career_interest or '' }}" placeholder="AI Engineer / Data Scientist">
+        </div>
+    </div>
+</div>
+
+<!-- ACADEMIC INTERESTS -->
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Academic Interests</div>
+            <div class="card-subtitle">What interests you most in academics?</div>
+        </div>
+    </div>
+    <div class="form-grid full" style="display:grid;grid-template-columns:1fr;gap:18px;">
+        <div class="form-group">
+            <label class="form-label">Why these areas?</label>
+            <textarea class="form-control" id="whyInterest" rows="3" placeholder="Tell us what draws you to these subjects...">{{ student.why_interest or '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Unique Strengths</label>
+            <textarea class="form-control" id="strengths" rows="3" placeholder="What are your key academic and personal strengths?">{{ student.strengths or '' }}</textarea>
+        </div>
+    </div>
+</div>
+
+<!-- STICKY SAVE BAR -->
+<div class="save-bar" style="position:fixed;bottom:24px;right:36px;background:rgba(255,255,255,0.96);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:12px 24px;display:flex;align-items:center;gap:18px;box-shadow:var(--shadow-md);z-index:40;backdrop-filter:blur(8px);">
+    <span class="save-status" id="saveStatus" style="font-size:12.5px;color:var(--navy);">All changes saved <strong>✓</strong></span>
+    <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let subjects = [];
+    try {
+        const rawSubjects = {{ (student.subjects or '[]')|tojson }};
+        if (typeof rawSubjects === 'string') {
+            subjects = JSON.parse(rawSubjects);
+        } else if (Array.isArray(rawSubjects)) {
+            subjects = rawSubjects;
+        }
+    } catch (e) {
+        subjects = [];
+    }
+
+    function addSubject() {
+        const input = document.getElementById('subjectInput');
+        const value = input.value.trim();
+
+        if (value && !subjects.includes(value)) {
+            subjects.push(value);
+            input.value = '';
+            renderSubjects();
+        }
+    }
+
+    function removeSubject(index) {
+        subjects.splice(index, 1);
+        renderSubjects();
+    }
+
+    function renderSubjects() {
+        const container = document.getElementById('subjectTags');
+        if (!container) return;
+        container.innerHTML = '';
+
+        subjects.forEach((subject, index) => {
+            const tag = document.createElement('div');
+            tag.style.cssText = 'padding:6px 14px;border-radius:20px;background:var(--blue-bg);color:var(--blue);border:1px solid rgba(37,99,235,0.2);font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:8px;';
+            tag.innerHTML = `${subject} <button type="button" onclick="removeSubject(${index})" style="border:none;background:none;color:var(--coral);font-weight:800;cursor:pointer;font-size:14px;">×</button>`;
+            container.appendChild(tag);
+        });
+    }
+
+    function saveProfile() {
+        const saveStatus = document.getElementById('saveStatus');
+        saveStatus.innerHTML = 'Saving changes...';
+
+        const profileData = {
+            full_name: document.getElementById('fullName').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            date_of_birth: document.getElementById('dateOfBirth').value,
+            department: document.getElementById('department').value.trim(),
+            subjects: JSON.stringify(subjects),
+            target_degree: document.getElementById('targetDegree').value.trim(),
+            career_interest: document.getElementById('careerInterest').value.trim(),
+            why_interest: document.getElementById('whyInterest').value.trim(),
+            strengths: document.getElementById('strengths').value.trim()
+        };
+
+        fetch('/api/student/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(profileData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                saveStatus.innerHTML = 'Profile saved successfully <strong>✓</strong>';
+                const nameVal = document.getElementById('fullName').value;
+                if (nameVal) {
+                    const nameElem = document.querySelector('.profile-name');
+                    const avatarElem = document.querySelector('.avatar');
+                    if (nameElem) nameElem.textContent = nameVal;
+                    if (avatarElem) avatarElem.textContent = nameVal.charAt(0).toUpperCase();
+                }
+                setTimeout(() => {
+                    saveStatus.innerHTML = 'All changes saved <strong>✓</strong>';
+                }, 3000);
+            } else {
+                saveStatus.innerHTML = '<span style="color:var(--red);">' + (data.message || 'Error saving profile') + '</span>';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            saveStatus.innerHTML = '<span style="color:var(--red);">Failed to save</span>';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderSubjects();
+        loadProfile();
+    });
+
+    function loadProfile() {
+        fetch('/api/student/profile')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.student) {
+                    const student = data.student;
+                    if (student.full_name) document.getElementById('fullName').value = student.full_name;
+                    if (student.email) document.getElementById('email').value = student.email;
+                    if (student.phone) document.getElementById('phone').value = student.phone;
+                    if (student.date_of_birth) document.getElementById('dateOfBirth').value = student.date_of_birth;
+                    if (student.student_id) document.getElementById('studentId').value = student.student_id;
+                    if (student.department) document.getElementById('department').value = student.department;
+                    if (student.target_degree) document.getElementById('targetDegree').value = student.target_degree;
+                    if (student.career_interest) document.getElementById('careerInterest').value = student.career_interest;
+                    if (student.why_interest) document.getElementById('whyInterest').value = student.why_interest;
+                    if (student.strengths) document.getElementById('strengths').value = student.strengths;
+                    if (student.subjects) {
+                        try {
+                            const parsed = typeof student.subjects === 'string' ? JSON.parse(student.subjects) : student.subjects;
+                            if (Array.isArray(parsed)) {
+                                subjects = parsed;
+                                renderSubjects();
+                            }
+                        } catch (e) {
+                            console.error('Error parsing subjects JSON', e);
+                        }
+                    }
+                }
+            })
+            .catch(err => console.log('Profile load handled via template fallback'));
+    }
+</script>
+{% endblock %}
