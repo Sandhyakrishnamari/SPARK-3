@@ -841,6 +841,25 @@ def recalculate_student_metrics(conn, student_id):
 # INITIALIZE DATABASE
 # ============================================================
 
+def ensure_db_exists():
+    """Check if database exists and initialize if needed."""
+    db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
+    
+    # Check if database file exists (for SQLite)
+    if not os.environ.get("DATABASE_URL"):  # Using SQLite
+        if not os.path.exists(db_path):
+            # Create empty database file
+            with open(db_path, 'w') as f:
+                pass  # Create empty file
+            init_db()
+    else:
+        # For PostgreSQL, just try to initialize (it will handle existing tables)
+        try:
+            init_db()
+        except Exception as e:
+            print(f"Database initialization error: {e}")
+
+
 def init_db():
     conn = get_db()
     cursor = conn.cursor()
@@ -3044,11 +3063,15 @@ def counselor_download_student_record(student_id):
 
 @app.route("/health")
 def health():
-
+    # Ensure database exists on health check
+    ensure_db_exists()
+    
+    db_type = "PostgreSQL" if os.environ.get("DATABASE_URL") else "SQLite"
+    
     return jsonify({
         "status": "online",
         "application": "SPARK",
-        "database": "PostgreSQL",
+        "database": db_type,
         "time": datetime.now().isoformat()
     })
 
@@ -3063,6 +3086,10 @@ def health():
 # ============================================================
 # RUN APPLICATION
 # ============================================================
+
+# Initialize database on startup for all environments
+with app.app_context():
+    ensure_db_exists()
 
 if __name__ == "__main__":
     with app.app_context():
