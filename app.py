@@ -107,10 +107,20 @@ class SparkConnection:
 
 def get_db():
     if "db" not in g:
-        db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
-        raw_conn = sqlite3.connect(db_path)
-        raw_conn.row_factory = sqlite3.Row
-        g.db = SparkConnection(raw_conn)
+        try:
+            db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
+            raw_conn = sqlite3.connect(db_path)
+            raw_conn.row_factory = sqlite3.Row
+            g.db = SparkConnection(raw_conn)
+        except Exception as e:
+            print(f"Database connection error: {e}")
+            # Create database if it doesn't exist
+            ensure_db_exists()
+            # Try again
+            db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
+            raw_conn = sqlite3.connect(db_path)
+            raw_conn.row_factory = sqlite3.Row
+            g.db = SparkConnection(raw_conn)
     return g.db
 
 
@@ -843,21 +853,25 @@ def recalculate_student_metrics(conn, student_id):
 
 def ensure_db_exists():
     """Check if database exists and initialize if needed."""
-    db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
-    
-    # Check if database file exists (for SQLite)
-    if not os.environ.get("DATABASE_URL"):  # Using SQLite
-        if not os.path.exists(db_path):
-            # Create empty database file
-            with open(db_path, 'w') as f:
-                pass  # Create empty file
-            init_db()
-    else:
-        # For PostgreSQL, just try to initialize (it will handle existing tables)
-        try:
-            init_db()
-        except Exception as e:
-            print(f"Database initialization error: {e}")
+    try:
+        db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
+        
+        # Check if database file exists (for SQLite)
+        if not os.environ.get("DATABASE_URL"):  # Using SQLite
+            if not os.path.exists(db_path):
+                # Create empty database file
+                with open(db_path, 'w') as f:
+                    pass  # Create empty file
+                init_db()
+        else:
+            # For PostgreSQL, just try to initialize (it will handle existing tables)
+            try:
+                init_db()
+            except Exception as e:
+                print(f"Database initialization error: {e}")
+    except Exception as e:
+        print(f"Error in ensure_db_exists: {e}")
+        # Don't fail the app if database initialization fails
 
 
 def init_db():
@@ -3087,13 +3101,12 @@ def health():
 # RUN APPLICATION
 # ============================================================
 
-# Initialize database on startup for all environments
-with app.app_context():
-    ensure_db_exists()
+# Don't initialize database globally for serverless compatibility
+# Database will be initialized on first request via ensure_db_exists()
 
 if __name__ == "__main__":
     with app.app_context():
-        init_db()
+        ensure_db_exists()
 
     print("")
     print("============================================")
