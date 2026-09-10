@@ -126,29 +126,37 @@ def get_db():
             database_url = app.config.get("DATABASE_URL")
             db_type = getattr(Config, 'DB_TYPE', 'sqlite')
             
+            # Try PostgreSQL first if DATABASE_URL is set
             if database_url and db_type == "postgresql" and POSTGRESQL_AVAILABLE:
-                # Use PostgreSQL
-                raw_conn = psycopg2.connect(database_url)
-                raw_conn.autocommit = False
-                g.db = SparkConnection(raw_conn, db_type="postgresql")
-            else:
-                # Use SQLite
-                db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
-                raw_conn = sqlite3.connect(db_path)
-                raw_conn.row_factory = sqlite3.Row
-                g.db = SparkConnection(raw_conn, db_type="sqlite")
+                try:
+                    # Use PostgreSQL
+                    raw_conn = psycopg2.connect(database_url)
+                    raw_conn.autocommit = False
+                    g.db = SparkConnection(raw_conn, db_type="postgresql")
+                    print("Connected to PostgreSQL database")
+                    return g.db
+                except Exception as pg_error:
+                    print(f"PostgreSQL connection failed: {pg_error}")
+                    print("Falling back to SQLite")
+                    # Fall through to SQLite
+            
+            # Use SQLite as fallback
+            db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
+            raw_conn = sqlite3.connect(db_path)
+            raw_conn.row_factory = sqlite3.Row
+            g.db = SparkConnection(raw_conn, db_type="sqlite")
+            print(f"Connected to SQLite database: {db_path}")
+            
         except Exception as e:
             print(f"Database connection error: {e}")
             # For SQLite, try to create database if it doesn't exist
-            if not database_url or db_type == "sqlite":
-                ensure_db_exists()
-                # Try again
-                db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
-                raw_conn = sqlite3.connect(db_path)
-                raw_conn.row_factory = sqlite3.Row
-                g.db = SparkConnection(raw_conn, db_type="sqlite")
-            else:
-                raise
+            ensure_db_exists()
+            # Try again with SQLite
+            db_path = app.config.get("DB_PATH", os.path.join(BASE_DIR, "spark.db"))
+            raw_conn = sqlite3.connect(db_path)
+            raw_conn.row_factory = sqlite3.Row
+            g.db = SparkConnection(raw_conn, db_type="sqlite")
+            print(f"Created and connected to SQLite database: {db_path}")
     return g.db
 
 
@@ -1296,68 +1304,73 @@ def favicon():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    try:
+        if request.method == "POST":
 
-    if request.method == "POST":
+            username = request.form.get(
+                "username",
+                ""
+            ).strip()
 
-        username = request.form.get(
-            "username",
-            ""
-        ).strip()
+            password = request.form.get(
+                "password",
+                ""
+            )
 
-        password = request.form.get(
-            "password",
-            ""
-        )
+            conn = get_db()
 
-        conn = get_db()
+            user = conn.execute("""
+                SELECT *
+                FROM users
+                WHERE username = ?
+            """, (username,)).fetchone()
 
-        user = conn.execute("""
-            SELECT *
-            FROM users
-            WHERE username = ?
-        """, (username,)).fetchone()
+            conn.close()
 
-        conn.close()
+            if user and check_password_hash(
+                user["password"],
+                password
+            ):
 
-        if user and check_password_hash(
-            user["password"],
-            password
-        ):
+                session.clear()
 
-            session.clear()
+                session["user_id"] = user["id"]
 
-            session["user_id"] = user["id"]
+                session["username"] = user["username"]
 
-            session["username"] = user["username"]
+                session["role"] = user["role"]
 
-            session["role"] = user["role"]
+                # --------------------------------------------
+                # STUDENT
+                # --------------------------------------------
 
-            # --------------------------------------------
-            # STUDENT
-            # --------------------------------------------
+                if user["role"] == "student":
 
-            if user["role"] == "student":
+                    return redirect(
+                        url_for("student_dashboard")
+                    )
 
-                return redirect(
-                    url_for("student_dashboard")
-                )
+                # --------------------------------------------
+                # COUNSELOR
+                # --------------------------------------------
 
-            # --------------------------------------------
-            # COUNSELOR
-            # --------------------------------------------
+                if user["role"] == "counselor":
 
-            if user["role"] == "counselor":
+                    return redirect(
+                        url_for("counselor_dashboard")
+                    )
 
-                return redirect(
-                    url_for("counselor_dashboard")
-                )
+            flash(
+                "Invalid username or password.",
+                "error"
+            )
 
-        flash(
-            "Invalid username or password.",
-            "error"
-        )
-
-    return render_template("login.html")
+        return render_template("login.html")
+        
+    except Exception as e:
+        print(f"Login error: {e}")
+        flash(f"An error occurred: {str(e)}", "error")
+        return render_template("login.html")
 
 
 # ============================================================
@@ -3119,17 +3132,26 @@ def counselor_download_student_record(student_id):
 
 @app.route("/health")
 def health():
-    # Ensure database exists on health check
-    ensure_db_exists()
-    
-    db_type = "PostgreSQL" if os.environ.get("DATABASE_URL") else "SQLite"
-    
-    return jsonify({
-        "status": "online",
-        "application": "SPARK",
-        "database": db_type,
-        "time": datetime.now().isoformat()
-    })
+    try:
+        # Ensure database exists on health check
+        ensure_db_exists()
+        
+        database_url = app.config.get("DATABASE_URL")
+        db_type = "PostgreSQL" if database_url else "SQLite"
+        
+        return jsonify({
+            "status": "online",
+            "application": "SPARK",
+            "database": db_type,
+            "database_url_set": bool(database_url),
+            "time": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "time": datetime.now().isoformat()
+        }), 500
 
 
 # ============================================================
